@@ -39,6 +39,7 @@
 
 - (void) invalidateCachedToken;
 
+- (void) setDelegate:(id)delegate;
 - (void) setAccessToken: (NSString*) accessToken expires: (NSTimeInterval) tokenExpires permissions: (NSString*) perms error: (NSString*) errorReason;
 - (NSString*) accessToken;
 
