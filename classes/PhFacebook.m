@@ -24,8 +24,8 @@
 {
     self = [super init];
     if (self) {
-        _appID = [coder decodeObjectForKey:@"appID"];
-        _authToken = [coder decodeObjectForKey:@"authToken"];
+        _appID = [[coder decodeObjectForKey:@"appID"] retain];
+        _authToken = [[coder decodeObjectForKey:@"authToken"] retain];
     }
     return self;
 }
