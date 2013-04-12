@@ -11,7 +11,7 @@
 @class PhWebViewController;
 @class PhAuthenticationToken;
 
-@interface PhFacebook : NSObject
+@interface PhFacebook : NSObject <NSCoding>
 {
 @private
     NSString *_appID;

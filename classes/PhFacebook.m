@@ -18,6 +18,24 @@
 
 @implementation PhFacebook
 
+#pragma mark NSCoding Protocol
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    self = [super init];
+    if (self) {
+        _appID = [coder decodeObjectForKey:@"appID"];
+        _authToken = [coder decodeObjectForKey:@"authToken"];
+    }
+    return self;
+}
+
+- (void) encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:_appID forKey:@"appID"];
+    [coder encodeObject:_authToken forKey:@"authToken"];
+}
+
 #pragma mark Initialization
 
 - (id) initWithApplicationID: (NSString*) appID delegate: (id) delegate
@@ -71,6 +89,11 @@
 }
 
 #pragma mark Access
+
+- (void) setDelegate:(id)delegate
+{
+    _delegate = delegate;    // Weak reference
+}
 
 - (void) clearToken
 {
