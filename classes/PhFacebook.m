@@ -218,16 +218,46 @@
     return [[_authToken.authenticationToken copy] autorelease];
 }
 
-- (void) sendFacebookRequest: (NSDictionary*) allParams
+- (NSDictionary*) resultFromRequest: (NSString*) request data: (NSData*) data
 {
-    NSAutoreleasePool *pool = [NSAutoreleasePool new];
+    NSDictionary *responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    NSString *responseStr = [[NSString alloc] initWithBytesNoCopy: (void*)[data bytes] length: [data length] encoding:NSASCIIStringEncoding freeWhenDone: NO];
+    
+    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
+                            responseDict, @"resultDict",
+                            responseStr, @"result",
+                            request, @"request",
+                            data, @"raw",
+                            self, @"sender",
+                            nil];
+    [responseStr release];
+    return result;
+}
 
+- (NSDictionary *)_doRequest:(NSDictionary *)allParams
+{
+    NSDictionary *result = nil;
+    
     if (_authToken)
     {
+        //        NSAutoreleasePool *pool = [NSAutoreleasePool new];
+        
         NSString *request = [allParams objectForKey: @"request"];
         NSString *str;
-        BOOL postRequest = [[allParams objectForKey: @"postRequest"] boolValue];
-                
+        
+        // Determine request method
+        
+        NSString *requestMethod = [allParams objectForKey:@"requestMethod"];
+        BOOL postRequest = NO;
+        if (requestMethod) {
+            if ([requestMethod isEqualToString:@"POST"]) {
+                postRequest = YES;
+            }
+        } else {
+            postRequest = [[allParams objectForKey: @"postRequest"] boolValue];
+            requestMethod = postRequest ? @"POST" : @"GET";
+        }
+        
         if (postRequest)
         {
             str = [NSString stringWithFormat: kFBGraphApiPostURL, request];
@@ -241,72 +271,89 @@
                 formatStr = kFBGraphApiGetURLWithParams;
             str = [NSString stringWithFormat: formatStr, request, _authToken.authenticationToken];
         }
-
+        
         
         NSDictionary *params = [allParams objectForKey: @"params"];
         NSMutableString *strPostParams = nil;
-        if (params != nil) 
+        if (params != nil)
         {
             if (postRequest)
             {
                 strPostParams = [NSMutableString stringWithFormat: @"access_token=%@", _authToken.authenticationToken];
-                for (NSString *p in [params allKeys]) 
+                for (NSString *p in [params allKeys])
                     [strPostParams appendFormat: @"&%@=%@", p, [params objectForKey: p]];
             }
             else
             {
                 NSMutableString *strWithParams = [NSMutableString stringWithString: str];
-                for (NSString *p in [params allKeys]) 
+                for (NSString *p in [params allKeys])
                     [strWithParams appendFormat: @"&%@=%@", p, [params objectForKey: p]];
                 str = strWithParams;
             }
         }
         
         NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL: [NSURL URLWithString: str]];
+        [req setHTTPMethod:requestMethod];
         
         if (postRequest)
         {
             NSData *requestData = [NSData dataWithBytes: [strPostParams UTF8String] length: [strPostParams length]];
-            [req setHTTPMethod: @"POST"];
             [req setHTTPBody: requestData];
             [req setValue: @"application/x-www-form-urlencoded" forHTTPHeaderField: @"content-type"];
         }
         
         NSURLResponse *response = nil;
         NSError *error = nil;
-        NSData *data = [NSURLConnection sendSynchronousRequest: req returningResponse: &response error: &error];
-
-        if ([_delegate respondsToSelector: @selector(requestResult:)])
-        {
-            NSString *str = [[NSString alloc] initWithBytesNoCopy: (void*)[data bytes] length: [data length] encoding:NSASCIIStringEncoding freeWhenDone: NO];
-
-            NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
-                str, @"result",
-                request, @"request",
-                data, @"raw",                                    
-                self, @"sender",
-                nil];
-            [_delegate performSelectorOnMainThread:@selector(requestResult:) withObject: result waitUntilDone:YES];
-            [str release];
-        }
-    }
-    [pool drain];
-}
-
-- (void) sendRequest: (NSString*) request params: (NSDictionary*) params usePostRequest: (BOOL) postRequest
-{
-    NSMutableDictionary *allParams = [NSMutableDictionary dictionaryWithObject: request forKey: @"request"];
-    if (params != nil)
-        [allParams setObject: params forKey: @"params"];
         
-    [allParams setObject: [NSNumber numberWithBool: postRequest] forKey: @"postRequest"];
-
-	[NSThread detachNewThreadSelector: @selector(sendFacebookRequest:) toTarget: self withObject: allParams];    
+        NSLog(@"Sending %@ request: %@", requestMethod, req.URL);
+        
+        NSData *data = [NSURLConnection sendSynchronousRequest: req returningResponse: &response error: &error];
+        
+        result = [self resultFromRequest:request data:data];
+        
+        //        [pool drain];
+    }
+    return result;
 }
 
-- (void) sendRequest: (NSString*) request
+- (void) sendFacebookRequest:(NSDictionary *)allParams
 {
-    [self sendRequest: request params: nil usePostRequest: NO];
+    if ([_delegate respondsToSelector:@selector(requestResult:)])
+    {
+        NSDictionary *result = [self _doRequest:allParams];
+        [_delegate performSelectorOnMainThread:@selector(requestResult:) withObject: result waitUntilDone:YES];
+    }
+}
+
+- (NSDictionary *)sendSynchronousFacebookRequest:(NSDictionary *)allParams
+{
+    NSDictionary* result = [self _doRequest:allParams];
+    return result;
+}
+
+- (NSDictionary *)allParams:(NSDictionary*)params request:(NSString *)request HTTPMethod:(NSString *)method
+{
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            request, @"request",
+            method, @"requestMethod",
+            params, @"params", nil];        // params may be nil
+}
+
+- (void) sendRequest:(NSString*) request
+{
+    NSDictionary *allParams = [self allParams:nil request:request HTTPMethod:@"GET"];
+    [NSThread detachNewThreadSelector:@selector(sendFacebookRequest:) toTarget:self withObject:allParams];
+}
+
+- (NSDictionary *)sendSynchronousRequest:(NSString *)request HTTPMethod:(NSString *)method
+{
+    NSDictionary *allParams = [self allParams:nil request:request HTTPMethod:method];
+    return [self sendSynchronousFacebookRequest:allParams];
+}
+
+- (NSDictionary *)sendSynchronousRequest:(NSString *)request
+{
+    return [self sendSynchronousRequest:request HTTPMethod:@"GET"];
 }
 
 - (void) sendFacebookFQLRequest: (NSString*) query
