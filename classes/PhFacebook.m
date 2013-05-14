@@ -85,11 +85,16 @@
         [result setObject: errorReason forKey: @"error"];
     }
 
-    if ([_delegate respondsToSelector: @selector(tokenResult:)])
-        [_delegate tokenResult: result];
+    if ([_delegate respondsToSelector: @selector(facebook:tokenResult:)])
+        [_delegate facebook:self tokenResult: result];
 }
 
 #pragma mark Access
+
+- (id) delegate
+{
+    return [[_delegate retain] autorelease];
+}
 
 - (void) setDelegate:(id)delegate
 {
