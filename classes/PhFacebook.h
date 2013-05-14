@@ -31,7 +31,8 @@
 // request: the short version of the Facebook Graph API, e.g. "me/feed"
 // see http://developers.facebook.com/docs/api
 - (void) sendRequest: (NSString*) request;
-- (void) sendRequest: (NSString*) request params: (NSDictionary*) params usePostRequest: (BOOL) postRequest;
+- (NSDictionary *)sendSynchronousRequest:(NSString *)request HTTPMethod:(NSString *)method;
+- (NSDictionary *)sendSynchronousRequest:(NSString *)request;
 
 // query: the query to send to FQL API, e.g. "SELECT uid, sex, name from user WHERE uid = me()"
 // see http://developers.facebook.com/docs/reference/fql/
@@ -39,6 +40,7 @@
 
 - (void) invalidateCachedToken;
 
+- (id) delegate;
 - (void) setDelegate:(id)delegate;
 - (void) setAccessToken: (NSString*) accessToken expires: (NSTimeInterval) tokenExpires permissions: (NSString*) perms error: (NSString*) errorReason;
 - (NSString*) accessToken;
