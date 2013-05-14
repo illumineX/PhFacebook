@@ -51,7 +51,7 @@
 @protocol PhFacebookDelegate
 
 @required
-- (void) tokenResult: (NSDictionary*) result;
+- (void) facebook: (PhFacebook*) facebook tokenResult: (NSDictionary*) result;
 - (void) requestResult: (NSDictionary*) result;
 
 @optional
