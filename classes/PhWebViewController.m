@@ -63,7 +63,7 @@
 - (void) webView: (WebView*) sender didCommitLoadForFrame: (WebFrame*) frame;
 {
     NSString *url = [sender mainFrameURL];
-    DebugLog(@"didCommitLoadForFrame: {%@}", url);
+    DebugLog(@"didCommitLoadForFrame: {%@}", [url stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
 
     NSString *urlWithoutSchema = [url substringFromIndex: [@"http://" length]];
     if ([url hasPrefix: @"https://"])
@@ -100,7 +100,7 @@
 - (void) webView: (WebView*) sender didFinishLoadForFrame: (WebFrame*) frame
 {
     NSString *url = [sender mainFrameURL];
-    DebugLog(@"didFinishLoadForFrame: {%@}", url);
+    DebugLog(@"didFinishLoadForFrame: {%@}", [url stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
 
     NSString *urlWithoutSchema = [url substringFromIndex: [@"http://" length]];
     if ([url hasPrefix: @"https://"])
