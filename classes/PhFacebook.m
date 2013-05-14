@@ -11,6 +11,7 @@
 #import "PhAuthenticationToken.h"
 #import "PhFacebook_URLs.h"
 #import "Debug.h"
+#import "WebView+PhFacebook.h"
 
 #define kFBStoreAccessToken @"FBAStoreccessToken"
 #define kFBStoreTokenExpiry @"FBStoreTokenExpiry"
@@ -188,6 +189,15 @@
         // if it needs to.
         _webViewController.parent = self;
         _webViewController.permissions = scope;
+        WebView *webView = _webViewController.webView;
+        
+        // Need to fake Safari-like user agent because otherwise auth token will be missing on request when cookies are deleted
+        
+        [webView poseAsSafari];
+        //[webView setCustomUserAgent:@"Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/536.29.13 (KHTML, like Gecko) Version/6.0.4 Safari/536.29.13"];
+        
+        NSLog(@"User Agent: %@", [webView customUserAgent]);
+        
         [_webViewController.webView setMainFrameURL: authURL];
     }
 }
