@@ -63,20 +63,22 @@
     [super dealloc];
 }
 
+- (void) saveTokenToUserDefaults:(PhAuthenticationToken *)token
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject: token.authenticationToken forKey: kFBStoreAccessToken];
+    if (token.expiry)
+        [defaults setObject: token.expiry forKey: kFBStoreTokenExpiry];
+    else
+        [defaults removeObjectForKey: kFBStoreTokenExpiry];
+    [defaults setObject: token.permissions forKey: kFBStoreAccessPermissions];
+}
+
 - (void) notifyDelegateForToken: (PhAuthenticationToken*) token withError: (NSString*) errorReason
 {
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     if (token)
     {
-        // Save it to user defaults
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        [defaults setObject: token.authenticationToken forKey: kFBStoreAccessToken];
-        if (token.expiry)
-            [defaults setObject: token.expiry forKey: kFBStoreTokenExpiry];
-        else
-            [defaults removeObjectForKey: kFBStoreTokenExpiry];
-        [defaults setObject: token.permissions forKey: kFBStoreAccessPermissions];
-
         [result setObject: [NSNumber numberWithBool: YES] forKey: @"valid"];
     }
     else
@@ -131,7 +133,12 @@
     [self clearToken];
 
     if (accessToken)
-        _authToken = [[PhAuthenticationToken alloc] initWithToken: accessToken secondsToExpiry: tokenExpires permissions: perms];
+    {
+        _authToken = [[PhAuthenticationToken alloc] initWithToken: accessToken
+                                                  secondsToExpiry: tokenExpires
+                                                      permissions: perms];
+        [self saveTokenToUserDefaults:_authToken];
+    }
 }
 
 - (void) getAccessTokenForPermissions: (NSArray*) permissions cached: (BOOL) canCache
