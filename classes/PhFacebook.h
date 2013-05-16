@@ -11,6 +11,9 @@
 @class PhWebViewController;
 @class PhAuthenticationToken;
 
+// Block parameter must match -facebook:tokenResult: last parameter
+typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
+
 @interface PhFacebook : NSObject <NSCoding>
 {
 @private
@@ -19,14 +22,20 @@
     PhWebViewController *_webViewController;
     PhAuthenticationToken *_authToken;
     NSString *_permissions;
+    //    PhTokenRequestCompletionHandler _tokenRequestCompletionHandler;
 }
+
+// The Completion handler to be invoked when web view is done loading success URL
+@property (copy) PhTokenRequestCompletionHandler tokenRequestCompletionHandler;
 
 - (id) initWithApplicationID: (NSString*) appID delegate: (id) delegate;
 
 // permissions: an array of required permissions
 //              see http://developers.facebook.com/docs/authentication/permissions
 // canCache: save and retrieve token locally if not expired
-- (void) getAccessTokenForPermissions: (NSArray*) permissions cached: (BOOL) canCache;
+- (void) getAccessTokenForPermissions:(NSArray *)permissions
+                               cached:(BOOL)canCache
+                           completion:(PhTokenRequestCompletionHandler)completion;
 
 // request: the short version of the Facebook Graph API, e.g. "me/feed"
 // see http://developers.facebook.com/docs/api
@@ -42,7 +51,13 @@
 
 - (id) delegate;
 - (void) setDelegate:(id)delegate;
-- (void) setAccessToken: (NSString*) accessToken expires: (NSTimeInterval) tokenExpires permissions: (NSString*) perms error: (NSString*) errorReason;
+
+// To be called when web view has finished loading success URL.
+// Will call completion handler that was provided earlier
+- (void) completeTokenRequestWithAccessToken:(NSString *)accessToken
+                                     expires:(NSTimeInterval)tokenExpires
+                                 permissions:(NSString *)perms
+                                       error:(NSString *)error;
 - (NSString*) accessToken;
 
 - (void) webViewWillShowUI;
