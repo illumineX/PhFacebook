@@ -257,12 +257,20 @@
     NSDictionary *responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     NSString *responseStr = [[NSString alloc] initWithBytesNoCopy: (void*)[data bytes] length: [data length] encoding:NSASCIIStringEncoding freeWhenDone: NO];
     
+    // Provide error object with result if response contained error
+    NSDictionary *errorDict = [responseDict valueForKey:@"error"];
+    NSError *error = nil;
+    if (errorDict) {
+        error = [self errorFromFacebookError:errorDict];
+    }
+    
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             responseDict, @"resultDict",
                             responseStr, @"result",
                             request, @"request",
                             data, @"raw",
                             self, @"sender",
+                            error, @"error",
                             nil];
     [responseStr release];
     return result;
@@ -424,6 +432,17 @@
 - (void) sendFQLRequest: (NSString*) query
 {
     [NSThread detachNewThreadSelector: @selector(sendFacebookFQLRequest:) toTarget: self withObject: query];
+}
+
+
+#pragma mark Error Handling
+
+- (NSError *)errorFromFacebookError:(NSDictionary *)fbError
+{
+    NSInteger errorCode = [((NSNumber *)[fbError valueForKey:@"code"]) integerValue];
+    NSError *error = [NSError errorWithDomain:@"IMBFacebookError" code:errorCode userInfo:fbError];
+    
+    return error;
 }
 
 #pragma mark Notifications
