@@ -116,7 +116,7 @@
 
         [self.window orderOut: self];
 
-        [parent setAccessToken: accessToken expires: [tokenExpires floatValue] permissions: self.permissions error: errorReason];
+        [parent completeTokenRequestWithAccessToken:accessToken expires:[tokenExpires floatValue] permissions:self.permissions error:errorReason];
     }
     else
     {

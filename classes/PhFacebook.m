@@ -19,6 +19,8 @@
 
 @implementation PhFacebook
 
+@synthesize tokenRequestCompletionHandler;
+
 #pragma mark NSCoding Protocol
 
 - (id)initWithCoder:(NSCoder *)coder
@@ -38,6 +40,13 @@
 }
 
 #pragma mark Initialization
+
+// Designated initializer for completion block based authorization
+//
+- (id) initWithApplicationID:(NSString *)appID
+{
+	return [self initWithApplicationID:appID delegate:nil];
+}
 
 - (id) initWithApplicationID: (NSString*) appID delegate: (id) delegate
 {
@@ -74,7 +83,7 @@
     [defaults setObject: token.permissions forKey: kFBStoreAccessPermissions];
 }
 
-- (void) notifyDelegateForToken: (PhAuthenticationToken*) token withError: (NSString*) errorReason
+- (NSDictionary *)authenticationResultFromToken:(PhAuthenticationToken *)token error:(NSString *)errorReason
 {
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     if (token)
@@ -86,9 +95,7 @@
         [result setObject: [NSNumber numberWithBool: NO] forKey: @"valid"];
         [result setObject: errorReason forKey: @"error"];
     }
-
-    if ([_delegate respondsToSelector: @selector(facebook:tokenResult:)])
-        [_delegate facebook:self tokenResult: result];
+    return result;
 }
 
 #pragma mark Access
@@ -141,8 +148,13 @@
     }
 }
 
-- (void) getAccessTokenForPermissions: (NSArray*) permissions cached: (BOOL) canCache
+- (void) getAccessTokenForPermissions:(NSArray *)permissions
+                               cached:(BOOL)canCache
+                           completion:(PhTokenRequestCompletionHandler)completion
 {
+    // Must save completion handler because web view is delegate callback based and thus does not offer
+    // another way to call completion handler when authentication success URL has been loaded
+    self.tokenRequestCompletionHandler = completion;
     BOOL validToken = NO;
     NSString *scope = [permissions componentsJoinedByString: @","];
 
@@ -168,7 +180,9 @@
 
     if (validToken)
     {
-        [self notifyDelegateForToken: _authToken withError: nil];
+        if (completion) {
+            completion([self authenticationResultFromToken:_authToken error:nil]);
+        }
     }
     else
     {
@@ -214,10 +228,23 @@
     }
 }
 
-- (void) setAccessToken: (NSString*) accessToken expires: (NSTimeInterval) tokenExpires permissions: (NSString*) perms error: (NSString*) errorReason
+// To be called when web view has finished loading success URL.
+// Will call completion handler that was provided earlier
+//
+- (void) completeTokenRequestWithAccessToken:(NSString *)accessToken
+                                     expires:(NSTimeInterval)tokenExpires
+                                 permissions:(NSString *)perms
+                                       error:(NSString *)error
 {
 	[self setAccessToken: accessToken expires: tokenExpires permissions: perms];
-	[self notifyDelegateForToken: _authToken withError: errorReason];
+
+    if (self.tokenRequestCompletionHandler)
+    {
+        self.tokenRequestCompletionHandler([self authenticationResultFromToken:_authToken error:error]);
+        
+        // Do not reuse completion handler
+        self.tokenRequestCompletionHandler = nil;
+    }
 }
 
 - (NSString*) accessToken
