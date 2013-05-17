@@ -68,7 +68,6 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 @protocol PhFacebookDelegate
 
 @required
-- (void) facebook: (PhFacebook*) facebook tokenResult: (NSDictionary*) result;
 - (void) requestResult: (NSDictionary*) result;
 
 @optional
