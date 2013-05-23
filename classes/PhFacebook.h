@@ -62,9 +62,6 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 
 - (void) webViewWillShowUI;
 - (void) didDismissUI;
-
-- (void) simulateExpiredAccessToken;
-
 @end
 
 @protocol PhFacebookDelegate
