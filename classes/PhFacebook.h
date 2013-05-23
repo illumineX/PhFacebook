@@ -57,11 +57,13 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 - (void) completeTokenRequestWithAccessToken:(NSString *)accessToken
                                      expires:(NSTimeInterval)tokenExpires
                                  permissions:(NSString *)perms
-                                       error:(NSString *)error;
+                                       error:(NSError *)error;
 - (NSString*) accessToken;
 
 - (void) webViewWillShowUI;
 - (void) didDismissUI;
+
+- (void) simulateExpiredAccessToken;
 
 @end
 
@@ -77,5 +79,4 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 - (BOOL) needsAuthentication: (NSString*) authenticationURL forPermissions: (NSString*) permissions; 
 - (void) willShowUINotification: (PhFacebook*) sender;
 - (void) didDismissUI: (PhFacebook*) sender;
-
 @end

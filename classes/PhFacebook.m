@@ -83,7 +83,7 @@
     [defaults setObject: token.permissions forKey: kFBStoreAccessPermissions];
 }
 
-- (NSDictionary *)authenticationResultFromToken:(PhAuthenticationToken *)token error:(NSString *)errorReason
+- (NSDictionary *)authenticationResultFromToken:(PhAuthenticationToken *)token error:(NSError *)error
 {
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     if (token)
@@ -93,7 +93,7 @@
     else
     {
         [result setObject: [NSNumber numberWithBool: NO] forKey: @"valid"];
-        [result setObject: errorReason forKey: @"error"];
+        [result setObject: error forKey: @"error"];
     }
     return result;
 }
@@ -234,7 +234,7 @@
 - (void) completeTokenRequestWithAccessToken:(NSString *)accessToken
                                      expires:(NSTimeInterval)tokenExpires
                                  permissions:(NSString *)perms
-                                       error:(NSString *)error
+                                       error:(NSError *)error
 {
 	[self setAccessToken: accessToken expires: tokenExpires permissions: perms];
 
@@ -252,33 +252,53 @@
     return [[_authToken.authenticationToken copy] autorelease];
 }
 
-- (NSDictionary*) resultFromRequest: (NSString*) request data: (NSData*) data
+- (NSDictionary*) resultFromRequest: (NSString*) request data: (NSData*) data error:(NSError *)error
 {
-    NSDictionary *responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-    NSString *responseStr = [[NSString alloc] initWithBytesNoCopy: (void*)[data bytes] length: [data length] encoding:NSASCIIStringEncoding freeWhenDone: NO];
-    
-    // Provide error object with result if response contained error
-    NSDictionary *errorDict = [responseDict valueForKey:@"error"];
-    NSError *error = nil;
-    if (errorDict) {
-        error = [self errorFromFacebookError:errorDict];
+    NSDictionary *result = nil;
+    NSString *responseStr = nil;
+    NSDictionary *responseDict = nil;
+    NSDictionary *facebookError = nil;
+    if (data) {
+        responseStr = [[NSString alloc] initWithBytesNoCopy: (void*)[data bytes]
+                                                     length: [data length]
+                                                   encoding:NSASCIIStringEncoding
+                                               freeWhenDone: NO];
+        
+        // Structured data returned from Facebook
+        responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        
+        // May contain an error
+        facebookError = [responseDict valueForKey:@"error"];
+        if (facebookError) {
+            error = [self errorFromFacebookError:facebookError];
+        }
     }
-    
-    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
-                            responseDict, @"resultDict",
-                            responseStr, @"result",
-                            request, @"request",
-                            data, @"raw",
-                            self, @"sender",
-                            error, @"error",
-                            nil];
+    // Any nil in parameter list of NSDictionary creation will terminate parameter list
+    if (error) {
+        result = [NSDictionary dictionaryWithObjectsAndKeys:
+                  request, @"request",
+                  self, @"sender",
+                  error, @"error",
+                  data, @"raw",
+                  responseStr, @"result",
+                  responseDict, @"resultDict",
+                  nil];
+    } else {
+        result = [NSDictionary dictionaryWithObjectsAndKeys:
+                  request, @"request",
+                  self, @"sender",
+                  data, @"raw",
+                  responseStr, @"result",
+                  responseDict, @"resultDict",
+                  nil];
+    }
     [responseStr release];
     return result;
 }
 
 - (NSDictionary *)_doRequest:(NSDictionary *)allParams
 {
-    NSDictionary *result = nil;
+    __block NSDictionary *result = nil;
     
     if (_authToken)
     {
@@ -351,7 +371,28 @@
         
         NSData *data = [NSURLConnection sendSynchronousRequest: req returningResponse: &response error: &error];
         
-        result = [self resultFromRequest:request data:data];
+        result = [self resultFromRequest:request data:data error:error];
+        
+        error = [result objectForKey:@"error"];
+//        if (error && error.code == 190)           // Session expired
+//        {
+//            // Re-authenticate and then re-execute _doRequest a second time if authentication was successful
+//            
+//            dispatch_semaphore_t secondTryDoneAfterReauthentication = dispatch_semaphore_create(0);
+//
+//            NSArray *permissions = [_authToken.permissions componentsSeparatedByString:@","];
+//            [self clearToken];
+//            [self getAccessTokenForPermissions:permissions cached:NO completion:^(NSDictionary *result) {
+//                NSError *tokenError = [result objectForKey:@"error"];
+//                if (!tokenError)
+//                {
+//                    // 2nd try for executing request
+//                    result = [self _doRequest:allParams];
+//                }
+//                dispatch_semaphore_signal(secondTryDoneAfterReauthentication);
+//            }];
+//            dispatch_semaphore_wait(secondTryDoneAfterReauthentication, DISPATCH_TIME_FOREVER);
+//        }
         
         //        [pool drain];
     }
@@ -440,7 +481,7 @@
 - (NSError *)errorFromFacebookError:(NSDictionary *)fbError
 {
     NSInteger errorCode = [((NSNumber *)[fbError valueForKey:@"code"]) integerValue];
-    NSError *error = [NSError errorWithDomain:@"IMBFacebookError" code:errorCode userInfo:fbError];
+    NSError *error = [NSError errorWithDomain:@"PhFacebookError" code:errorCode userInfo:fbError];
     
     return error;
 }
