@@ -97,6 +97,22 @@
     return res;
 }
 
+- (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
+{
+    [parent completeTokenRequestWithAccessToken:nil
+                                        expires:0.0
+                                    permissions:nil
+                                          error:error];
+}
+
+-(void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
+{
+    [parent completeTokenRequestWithAccessToken:nil
+                                        expires:0.0
+                                    permissions:nil
+                                          error:error];
+}
+
 - (void) webView: (WebView*) sender didFinishLoadForFrame: (WebFrame*) frame
 {
     NSString *url = [sender mainFrameURL];
@@ -113,10 +129,19 @@
         NSString *accessToken = [self extractParameter: kFBAccessToken fromURL: url];
         NSString *tokenExpires = [self extractParameter: kFBExpiresIn fromURL: url];
         NSString *errorReason = [self extractParameter: kFBErrorReason fromURL: url];
+        
+        NSError *error = nil;
+        if (errorReason) {
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      errorReason, NSLocalizedDescriptionKey,
+                                      nil];
+            // For lack of better code picked arbitrary
+            error = [NSError errorWithDomain:@"PhFacebookError" code:-1 userInfo:userInfo];
+        }
 
         [self.window orderOut: self];
 
-        [parent completeTokenRequestWithAccessToken:accessToken expires:[tokenExpires floatValue] permissions:self.permissions error:errorReason];
+        [parent completeTokenRequestWithAccessToken:accessToken expires:[tokenExpires floatValue] permissions:self.permissions error:error];
     }
     else
     {
