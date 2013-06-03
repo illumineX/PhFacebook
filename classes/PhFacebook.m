@@ -428,16 +428,24 @@
     [NSThread detachNewThreadSelector:@selector(sendFacebookRequest:) toTarget:self withObject:allParams];
 }
 
-- (NSDictionary *)sendSynchronousRequest:(NSString *)request HTTPMethod:(NSString *)method
+- (NSDictionary *)sendSynchronousRequest:(NSString *)request
+                              HTTPMethod:(NSString *)method
+                                  params:(NSDictionary *)params
 {
-    NSDictionary *allParams = [self allParams:nil request:request HTTPMethod:method];
+    NSDictionary *allParams = [self allParams:params request:request HTTPMethod:method];
     return [self sendSynchronousFacebookRequest:allParams];
+}
+
+- (NSDictionary *)sendSynchronousRequest:(NSString *)request params:(NSDictionary *)params
+{
+    return [self sendSynchronousRequest:request HTTPMethod:@"GET" params:params];
 }
 
 - (NSDictionary *)sendSynchronousRequest:(NSString *)request
 {
-    return [self sendSynchronousRequest:request HTTPMethod:@"GET"];
+    return [self sendSynchronousRequest:request params:nil];
 }
+
 
 - (void) sendFacebookFQLRequest: (NSString*) query
 {
