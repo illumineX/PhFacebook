@@ -19,7 +19,7 @@
 
 @implementation PhFacebook
 
-@synthesize tokenRequestCompletionHandler;
+@synthesize tokenRequestCompletionHandler, loginError;
 
 #pragma mark NSCoding Protocol
 
@@ -93,7 +93,11 @@
     else
     {
         [result setObject: [NSNumber numberWithBool: NO] forKey: @"valid"];
-        [result setObject: error forKey: @"error"];
+        
+        // If the user hit cancel there will be no error
+        if (error) {
+            [result setObject: error forKey: @"error"];
+        }
     }
     return result;
 }
@@ -228,23 +232,27 @@
     }
 }
 
-// To be called when web view has finished loading success URL.
+// To be called when web view will close.
 // Will call completion handler that was provided earlier
 //
+- (void) completeTokenRequestWithError:(NSError *)error
+{
+    if (self.tokenRequestCompletionHandler)
+    {
+        self.tokenRequestCompletionHandler([self authenticationResultFromToken:_authToken error:error]);
+        
+        // Do not reuse completion handler nor error
+        self.tokenRequestCompletionHandler = nil;
+        self.loginError = nil;
+    }
+}
+
 - (void) completeTokenRequestWithAccessToken:(NSString *)accessToken
                                      expires:(NSTimeInterval)tokenExpires
                                  permissions:(NSString *)perms
                                        error:(NSError *)error
 {
-	[self setAccessToken: accessToken expires: tokenExpires permissions: perms];
 
-    if (self.tokenRequestCompletionHandler)
-    {
-        self.tokenRequestCompletionHandler([self authenticationResultFromToken:_authToken error:error]);
-        
-        // Do not reuse completion handler
-        self.tokenRequestCompletionHandler = nil;
-    }
 }
 
 - (NSString*) accessToken
@@ -504,6 +512,8 @@
 
 - (void) didDismissUI
 {
+    [self completeTokenRequestWithError:self.loginError];
+    
     if ([_delegate respondsToSelector: @selector(didDismissUI:)])
         [_delegate performSelectorOnMainThread: @selector(didDismissUI:) withObject: self waitUntilDone: YES];
 }
