@@ -22,11 +22,13 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
     PhWebViewController *_webViewController;
     PhAuthenticationToken *_authToken;
     NSString *_permissions;
-    //    PhTokenRequestCompletionHandler _tokenRequestCompletionHandler;
 }
 
-// The Completion handler to be invoked when web view is done loading success URL
+// The Completion handler to be invoked when web view will be closed
 @property (copy) PhTokenRequestCompletionHandler tokenRequestCompletionHandler;
+
+// Any error that has been encountered attempting to login
+@property (retain) NSError *loginError;
 
 - (id) initWithApplicationID: (NSString*) appID delegate: (id) delegate;
 
@@ -36,6 +38,8 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 - (void) getAccessTokenForPermissions:(NSArray *)permissions
                                cached:(BOOL)canCache
                            completion:(PhTokenRequestCompletionHandler)completion;
+
+- (void) setAccessToken: (NSString*) accessToken expires: (NSTimeInterval) tokenExpires permissions: (NSString*) perms;
 
 // request: the short version of the Facebook Graph API, e.g. "me/feed"
 // see http://developers.facebook.com/docs/api

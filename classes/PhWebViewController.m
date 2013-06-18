@@ -46,7 +46,7 @@
 
 - (void) windowWillClose: (NSNotification*) notification
 {
-    [self cancel: nil];
+    [parent performSelector: @selector(didDismissUI)];
 }
 
 #pragma mark Delegate
@@ -99,18 +99,12 @@
 
 - (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
-    [parent completeTokenRequestWithAccessToken:nil
-                                        expires:0.0
-                                    permissions:nil
-                                          error:error];
+    parent.loginError = error;
 }
 
 -(void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
-    [parent completeTokenRequestWithAccessToken:nil
-                                        expires:0.0
-                                    permissions:nil
-                                          error:error];
+    parent.loginError = error;
 }
 
 - (void) webView: (WebView*) sender didFinishLoadForFrame: (WebFrame*) frame
@@ -130,18 +124,15 @@
         NSString *tokenExpires = [self extractParameter: kFBExpiresIn fromURL: url];
         NSString *errorReason = [self extractParameter: kFBErrorReason fromURL: url];
         
-        NSError *error = nil;
         if (errorReason) {
             NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                       errorReason, NSLocalizedDescriptionKey,
                                       nil];
             // For lack of better code picked arbitrary
-            error = [NSError errorWithDomain:@"PhFacebookError" code:-1 userInfo:userInfo];
+            parent.loginError = [NSError errorWithDomain:@"PhFacebookError" code:-1 userInfo:userInfo];
         }
-
-        [self.window orderOut: self];
-
-        [parent completeTokenRequestWithAccessToken:accessToken expires:[tokenExpires floatValue] permissions:self.permissions error:error];
+        [parent setAccessToken:accessToken expires:[tokenExpires floatValue] permissions:self.permissions];
+        [self.window close];
     }
     else
     {
@@ -156,8 +147,7 @@
 
 - (IBAction) cancel: (id) sender
 {
-    [parent performSelector: @selector(didDismissUI)];
-    [self.window orderOut: nil];
+    [self.window close];
 }
 
 @end
