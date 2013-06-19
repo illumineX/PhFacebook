@@ -221,11 +221,8 @@
         _webViewController.permissions = scope;
         WebView *webView = _webViewController.webView;
         
-        // Need to fake Safari-like user agent because otherwise auth token will be missing on request when cookies are deleted
-        
+        // Need to fake Safari-like user agent because otherwise auth token will be missing on request when cookies are deleted        
         [webView poseAsSafari];
-        
-        NSLog(@"User Agent: %@", [webView customUserAgent]);
         
         [_webViewController.webView setMainFrameURL: authURL];
     }

@@ -36,6 +36,9 @@
     [regex enumerateMatchesInString:webViewUserAgent options:options range:range usingBlock:captureMatch];   // Should only match once
     
     [self setCustomUserAgent:[NSString stringWithFormat:@"%@ Safari%@", webViewUserAgent, match]];
+
+//    NSLog(@"HTTP User Agent posing as Safari: %@", [self customUserAgent]);
+    
 }
 
 
