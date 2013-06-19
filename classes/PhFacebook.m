@@ -224,7 +224,6 @@
         // Need to fake Safari-like user agent because otherwise auth token will be missing on request when cookies are deleted
         
         [webView poseAsSafari];
-        //[webView setCustomUserAgent:@"Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/536.29.13 (KHTML, like Gecko) Version/6.0.4 Safari/536.29.13"];
         
         NSLog(@"User Agent: %@", [webView customUserAgent]);
         
