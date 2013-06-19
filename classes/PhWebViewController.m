@@ -16,18 +16,25 @@
 @implementation PhWebViewController
 
 @synthesize window;
-@synthesize webView;
 @synthesize cancelButton;
 @synthesize parent;
 @synthesize permissions;
 
+// Designated initializer
+//
 - (id) init
 {
-    if ((self = [super init]))
-    {
-    }
+	if (self = [super initWithNibName:[self className] bundle:[NSBundle bundleForClass:[self class]]])
+	{
+        ;
+	}
+	return self;
+}
 
-    return self;
+- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+	// Disregard parameters - nib name is an implementation detail
+	return [self init];
 }
 
 - (void) dealloc
@@ -39,7 +46,7 @@
 {
     NSBundle *bundle = [NSBundle bundleForClass: [PhFacebook class]];
     self.window.title = [bundle localizedStringForKey: @"FBAuthWindowTitle" value: @"" table: nil];
-    self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
+//    self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
     self.window.delegate = self;
     self.window.level = NSFloatingWindowLevel;
 }

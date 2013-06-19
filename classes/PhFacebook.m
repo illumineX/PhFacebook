@@ -212,19 +212,19 @@
         if (_webViewController == nil)
         {
             _webViewController = [[PhWebViewController alloc] init];
-            [NSBundle loadNibNamed: @"FacebookBrowser" owner: _webViewController];
         }
 
         // Prepare window but keep it ordered out. The _webViewController will make it visible
         // if it needs to.
         _webViewController.parent = self;
         _webViewController.permissions = scope;
-        WebView *webView = _webViewController.webView;
+        WebView *webView = (WebView *)_webViewController.view;
         
-        // Need to fake Safari-like user agent because otherwise auth token will be missing on request when cookies are deleted        
+        // Need to fake Safari-like user agent because otherwise auth token will be missing on request
+        // when cookies are deleted
         [webView poseAsSafari];
         
-        [_webViewController.webView setMainFrameURL: authURL];
+        [(WebView *)_webViewController.view setMainFrameURL: authURL];
     }
 }
 
