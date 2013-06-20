@@ -19,6 +19,10 @@
 
     PhFacebook *parent;
     NSString *permissions;
+    
+    // View positioning (only when using NSPopover for login)
+    NSRect _relativeToRect;
+    NSView *_rectParentView;
 }
 
 @property (assign) IBOutlet NSWindow *window;
@@ -26,6 +30,8 @@
 @property (assign) PhFacebook *parent;
 @property (nonatomic, retain) NSString *permissions;
 
+
+- (void) setRelativeToRect:(NSRect)relativeToRect ofView:(NSView *)view;
 - (IBAction) cancel: (id) sender;
 
 @end

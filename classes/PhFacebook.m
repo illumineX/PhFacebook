@@ -154,6 +154,8 @@
 
 - (void) getAccessTokenForPermissions:(NSArray *)permissions
                                cached:(BOOL)canCache
+                       relativeToRect:(NSRect)rect
+                               ofView:(NSView *)view
                            completion:(PhTokenRequestCompletionHandler)completion
 {
     // Must save completion handler because web view is delegate callback based and thus does not offer
@@ -223,6 +225,9 @@
         // Need to fake Safari-like user agent because otherwise auth token will be missing on request
         // when cookies are deleted
         [webView poseAsSafari];
+        
+        // When using NSPopover for login need positioning parameters
+        [_webViewController setRelativeToRect:rect ofView:view];
         
         [(WebView *)_webViewController.view setMainFrameURL: authURL];
     }
