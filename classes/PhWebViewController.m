@@ -13,12 +13,19 @@
 
 //#define ALWAYS_SHOW_UI
 
+@interface PhWebViewController ()
+
+@property (retain) id popover;
+
+@end
+
 @implementation PhWebViewController
 
 @synthesize window;
 @synthesize cancelButton;
 @synthesize parent;
 @synthesize permissions;
+@synthesize popover;
 
 // Designated initializer
 //
@@ -39,16 +46,44 @@
 
 - (void) dealloc
 {
+    [popover release];
     [super dealloc];
 }
 
 - (void) awakeFromNib
 {
     NSBundle *bundle = [NSBundle bundleForClass: [PhFacebook class]];
-    self.window.title = [bundle localizedStringForKey: @"FBAuthWindowTitle" value: @"" table: nil];
-//    self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
-    self.window.delegate = self;
-    self.window.level = NSFloatingWindowLevel;
+    
+    //    self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
+
+    if ([self preferPopover])
+    {
+        self.popover = [[NSPopover alloc] init];
+        [self.popover setDelegate:self];
+        [self.popover setContentViewController:self];
+    } else {
+        [self.window setContentView:self.view];
+        self.window.title = [bundle localizedStringForKey: @"FBAuthWindowTitle" value: @"" table: nil];
+        self.window.delegate = self;
+        self.window.level = NSFloatingWindowLevel;
+    }
+}
+
+- (BOOL) preferPopover
+{
+//    return NO;
+    return NSAppKitVersionNumber >= NSAppKitVersionNumber10_7;
+}
+
+- (void) setRelativeToRect:(NSRect)relativeToRect ofView:(NSView *)view
+{
+    _relativeToRect = relativeToRect;
+    _rectParentView = view;
+}
+
+- (void) popoverWillClose: (NSNotification*) notification
+{
+    [parent performSelector: @selector(didDismissUI)];
 }
 
 - (void) windowWillClose: (NSNotification*) notification
@@ -60,8 +95,15 @@
 
 - (void) showUI
 {
-    // Facebook needs user input, show the window
-    [self.window makeKeyAndOrderFront: self];
+    // Facebook needs user input, so show login view
+    
+    // Use NSPopover when possible
+    if ([self preferPopover]) {
+        [self.popover showRelativeToRect:_relativeToRect ofView:_rectParentView preferredEdge:NSMaxYEdge];
+    } else {
+        // Use NSWindow as fallback
+        [self.window makeKeyAndOrderFront: self];
+    }
     // Notify parent that we're about to show UI
     [self.parent webViewWillShowUI];
 }
@@ -139,7 +181,12 @@
             parent.loginError = [NSError errorWithDomain:@"PhFacebookError" code:-1 userInfo:userInfo];
         }
         [parent setAccessToken:accessToken expires:[tokenExpires floatValue] permissions:self.permissions];
-        [self.window close];
+        
+        if ([self preferPopover]) {
+            [self.popover close];
+        } else {
+            [self.window close];
+        }
     }
     else
     {

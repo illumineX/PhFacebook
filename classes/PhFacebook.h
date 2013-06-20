@@ -37,6 +37,8 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 // canCache: save and retrieve token locally if not expired
 - (void) getAccessTokenForPermissions:(NSArray *)permissions
                                cached:(BOOL)canCache
+                       relativeToRect:(NSRect)rect
+                               ofView:(NSView *)view
                            completion:(PhTokenRequestCompletionHandler)completion;
 
 - (void) setAccessToken: (NSString*) accessToken expires: (NSTimeInterval) tokenExpires permissions: (NSString*) perms;
