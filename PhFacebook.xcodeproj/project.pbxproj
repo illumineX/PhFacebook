@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		304CBCCD1739287300C562F6 /* WebView+PhFacebook.h in Headers */ = {isa = PBXBuildFile; fileRef = 304CBCCB1739287300C562F6 /* WebView+PhFacebook.h */; };
 		304CBCCE1739287300C562F6 /* WebView+PhFacebook.m in Sources */ = {isa = PBXBuildFile; fileRef = 304CBCCC1739287300C562F6 /* WebView+PhFacebook.m */; };
+		309CA11217731DBA008897F3 /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 309CA11017731DBA008897F3 /* JSONKit.h */; };
+		309CA11317731DBA008897F3 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 309CA11117731DBA008897F3 /* JSONKit.m */; };
 		374AB110122CB847004A5C23 /* Debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 374AB10F122CB846004A5C23 /* Debug.h */; };
 		375CCD711225EED40064B3AE /* PhFacebook.h in Headers */ = {isa = PBXBuildFile; fileRef = 375CCD6F1225EED40064B3AE /* PhFacebook.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		375CCD721225EED40064B3AE /* PhFacebook.m in Sources */ = {isa = PBXBuildFile; fileRef = 375CCD701225EED40064B3AE /* PhFacebook.m */; };
@@ -28,6 +30,8 @@
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		304CBCCB1739287300C562F6 /* WebView+PhFacebook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WebView+PhFacebook.h"; sourceTree = "<group>"; };
 		304CBCCC1739287300C562F6 /* WebView+PhFacebook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WebView+PhFacebook.m"; sourceTree = "<group>"; };
+		309CA11017731DBA008897F3 /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
+		309CA11117731DBA008897F3 /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
 		32DBCF5E0370ADEE00C91783 /* PhFacebook_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PhFacebook_Prefix.pch; path = private/PhFacebook_Prefix.pch; sourceTree = "<group>"; };
 		374AB10F122CB846004A5C23 /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Debug.h; path = private/Debug.h; sourceTree = "<group>"; };
 		375CCD6F1225EED40064B3AE /* PhFacebook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PhFacebook.h; path = classes/PhFacebook.h; sourceTree = "<group>"; };
@@ -70,6 +74,7 @@
 		0867D691FE84028FC02AAC07 /* PhFacebook */ = {
 			isa = PBXGroup;
 			children = (
+				309CA10E17731D82008897F3 /* Third Party */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
@@ -141,6 +146,23 @@
 			name = Categories;
 			sourceTree = "<group>";
 		};
+		309CA10E17731D82008897F3 /* Third Party */ = {
+			isa = PBXGroup;
+			children = (
+				309CA10F17731D8F008897F3 /* JSONKit */,
+			);
+			name = "Third Party";
+			sourceTree = "<group>";
+		};
+		309CA10F17731D8F008897F3 /* JSONKit */ = {
+			isa = PBXGroup;
+			children = (
+				309CA11017731DBA008897F3 /* JSONKit.h */,
+				309CA11117731DBA008897F3 /* JSONKit.m */,
+			);
+			name = JSONKit;
+			sourceTree = "<group>";
+		};
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -161,6 +183,7 @@
 				375CCD711225EED40064B3AE /* PhFacebook.h in Headers */,
 				374AB110122CB847004A5C23 /* Debug.h in Headers */,
 				304CBCCD1739287300C562F6 /* WebView+PhFacebook.h in Headers */,
+				309CA11217731DBA008897F3 /* JSONKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +261,7 @@
 				378DEC161228B9FD008061E4 /* PhWebViewController.m in Sources */,
 				37FB6FEE122AD367006339F3 /* PhAuthenticationToken.m in Sources */,
 				304CBCCE1739287300C562F6 /* WebView+PhFacebook.m in Sources */,
+				309CA11317731DBA008897F3 /* JSONKit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +304,7 @@
 				GCC_PREFIX_HEADER = private/PhFacebook_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@rpath";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = PhFacebook;
 				WRAPPER_EXTENSION = framework;
 			};
