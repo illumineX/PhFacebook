@@ -19,8 +19,17 @@
     // @"Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/536.29.13 (KHTML, like Gecko) Version/6.0.4 Safari/536.29.13"
     
     NSString *webViewUserAgent = [self userAgentForURL:[NSURL URLWithString:@"http://www.apple.com"]];
+    
+    NSScanner *userAgentScanner = [NSScanner scannerWithString:webViewUserAgent];
+    NSString *scanResult = nil;
+    [userAgentScanner scanUpToString:@"AppleWebKit" intoString:&scanResult];
+    [userAgentScanner scanString:@"AppleWebKit" intoString:&scanResult];
+    NSString *match = nil;
+    [userAgentScanner scanCharactersFromSet:[NSCharacterSet characterSetWithCharactersInString:@"/0123456789."] intoString:&match];
+    
+    /* No NSRegularExpression in 10.6
+     
     NSString *pattern = @"(/[0-9]+\\.[0-9]+\\.[0-9]+)";         // E.g. "/536.28.10"
-    __block NSString *match = nil;
     NSRegularExpressionOptions options = 0;
     NSError *error = NULL;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:options error:&error];
@@ -34,10 +43,12 @@
     };
     NSRange range = NSMakeRange(0, [webViewUserAgent length]);
     [regex enumerateMatchesInString:webViewUserAgent options:options range:range usingBlock:captureMatch];   // Should only match once
+
+    */
     
     [self setCustomUserAgent:[NSString stringWithFormat:@"%@ Safari%@", webViewUserAgent, match]];
 
-//    NSLog(@"HTTP User Agent posing as Safari: %@", [self customUserAgent]);
+    NSLog(@"HTTP User Agent posing as Safari: %@", [self customUserAgent]);
     
 }
 
