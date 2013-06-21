@@ -25,7 +25,7 @@
 @synthesize cancelButton;
 @synthesize parent;
 @synthesize permissions;
-@synthesize popover;
+@synthesize popover=_popover;
 
 // Designated initializer
 //
@@ -46,7 +46,7 @@
 
 - (void) dealloc
 {
-    [popover release];
+    [_popover release];
     [super dealloc];
 }
 
@@ -58,7 +58,7 @@
 
     if ([self preferPopover])
     {
-        self.popover = [[NSPopover alloc] init];
+        self.popover = [[[NSPopover alloc] init] autorelease];
         [self.popover setDelegate:self];
         [self.popover setContentViewController:self];
     } else {

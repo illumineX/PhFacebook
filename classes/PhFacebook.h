@@ -22,6 +22,8 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
     PhWebViewController *_webViewController;
     PhAuthenticationToken *_authToken;
     NSString *_permissions;
+    PhTokenRequestCompletionHandler _tokenRequestCompletionHandler;
+    NSError *_loginError;
 }
 
 // The Completion handler to be invoked when web view will be closed

@@ -20,7 +20,7 @@
 
 @implementation PhFacebook
 
-@synthesize tokenRequestCompletionHandler, loginError;
+@synthesize tokenRequestCompletionHandler=_tokenRequestCompletionHandler, loginError=_loginError;
 
 #pragma mark NSCoding Protocol
 
