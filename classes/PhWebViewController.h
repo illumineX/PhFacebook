@@ -15,6 +15,7 @@
 @interface PhWebViewController : NSViewController <NSWindowDelegate>
 {
     IBOutlet NSWindow *window;
+    id _popover;
     IBOutlet NSButton *cancelButton;
 
     PhFacebook *parent;
