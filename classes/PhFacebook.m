@@ -12,6 +12,7 @@
 #import "PhFacebook_URLs.h"
 #import "Debug.h"
 #import "WebView+PhFacebook.h"
+#import "JSONKit.h"
 
 #define kFBStoreAccessToken @"FBAStoreccessToken"
 #define kFBStoreTokenExpiry @"FBStoreTokenExpiry"
@@ -261,7 +262,7 @@
     return [[_authToken.authenticationToken copy] autorelease];
 }
 
-- (NSDictionary*) resultFromRequest: (NSString*) request data: (NSData*) data error:(NSError *)error
+- (NSDictionary*) resultFromRequest:(NSString *)request data:(NSData *)data
 {
     NSDictionary *result = nil;
     NSString *responseStr = nil;
@@ -274,20 +275,22 @@
                                                freeWhenDone: NO];
         
         // Structured data returned from Facebook
-        responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
         
-        // May contain an error
-        facebookError = [responseDict valueForKey:@"error"];
-        if (facebookError) {
-            error = [self errorFromFacebookError:facebookError];
+        if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_7) {
+            responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        } else {
+            responseDict = (NSDictionary *) [[JSONDecoder decoder] objectWithData:data error:nil];
         }
+        
+        // May contain a Facebook error
+        facebookError = [responseDict valueForKey:@"error"];
     }
     // Any nil in parameter list of NSDictionary creation will terminate parameter list
-    if (error) {
+    if (facebookError) {
         result = [NSDictionary dictionaryWithObjectsAndKeys:
                   request, @"request",
                   self, @"sender",
-                  error, @"error",
+                  facebookError, @"error",
                   data, @"raw",
                   responseStr, @"result",
                   responseDict, @"resultDict",
@@ -380,7 +383,7 @@
         
         NSData *data = [NSURLConnection sendSynchronousRequest: req returningResponse: &response error: &error];
         
-        result = [self resultFromRequest:request data:data error:error];
+        result = [self resultFromRequest:request data:data];
         
         error = [result objectForKey:@"error"];
 //        if (error && error.code == 190)           // Session expired
@@ -492,16 +495,6 @@
     [NSThread detachNewThreadSelector: @selector(sendFacebookFQLRequest:) toTarget: self withObject: query];
 }
 
-
-#pragma mark Error Handling
-
-- (NSError *)errorFromFacebookError:(NSDictionary *)fbError
-{
-    NSInteger errorCode = [((NSNumber *)[fbError valueForKey:@"code"]) integerValue];
-    NSError *error = [NSError errorWithDomain:@"PhFacebookError" code:errorCode userInfo:fbError];
-    
-    return error;
-}
 
 #pragma mark Notifications
 
