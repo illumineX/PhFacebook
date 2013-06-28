@@ -183,7 +183,12 @@
         [parent setAccessToken:accessToken expires:[tokenExpires floatValue] permissions:self.permissions];
         
         if ([self preferPopover]) {
-            [self.popover close];
+            if ([self.popover isShown]) {
+                [self.popover close];
+            } else {
+                // If popover was not shown we have to manually trigger a notification
+                [self popoverWillClose:nil];
+            }
         } else {
             [self.window close];
         }
@@ -202,6 +207,20 @@
 - (IBAction) cancel: (id) sender
 {
     [self.window close];
+}
+
+#pragma mark WebUIDelegate
+
+// Need to implement this delegate method since user might click on "Cancel" button in web view
+// which doesn't seem to trigger invocation of -popoverWillClose.
+//
+-(void)webViewClose:(WebView *)sender
+{
+    if ([self preferPopover]) {
+        [self.popover close];
+    } else {
+        [self.window close];
+    }
 }
 
 @end
