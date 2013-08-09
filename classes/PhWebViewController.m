@@ -22,6 +22,7 @@
 @implementation PhWebViewController
 
 @synthesize window;
+@synthesize webView;
 @synthesize cancelButton;
 @synthesize parent;
 @synthesize permissions;
@@ -197,6 +198,7 @@
     {
         // If access token is not retrieved, UI is shown to allow user to login/authorize
         [self showUI];
+        sender.UIDelegate = self;
     }
 
 #ifdef ALWAYS_SHOW_UI
@@ -206,7 +208,11 @@
 
 - (IBAction) cancel: (id) sender
 {
-    [self.window close];
+    if ([self preferPopover]) {
+        [self.popover close];
+    } else {
+        [self.window close];
+    }
 }
 
 #pragma mark WebUIDelegate
