@@ -372,7 +372,7 @@
         NSURLResponse *response = nil;
         NSError *error = nil;
         
-        NSLog(@"Sending %@ request: %@", requestMethod, req.URL);
+        DebugLog(@"Sending %@ request: %@", requestMethod, req.URL);
         
         NSData *data = [NSURLConnection sendSynchronousRequest: req returningResponse: &response error: &error];
         
