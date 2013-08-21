@@ -235,7 +235,7 @@
     }
 }
 
-// To be called when web view will close.
+// To be called when web view is done (either with or without having successfully logged in).
 // Will call completion handler that was provided earlier
 //
 - (void) completeTokenRequestWithError:(NSError *)error
@@ -248,14 +248,6 @@
         self.tokenRequestCompletionHandler = nil;
         self.loginError = nil;
     }
-}
-
-- (void) completeTokenRequestWithAccessToken:(NSString *)accessToken
-                                     expires:(NSTimeInterval)tokenExpires
-                                 permissions:(NSString *)perms
-                                       error:(NSError *)error
-{
-
 }
 
 - (NSString*) accessToken
