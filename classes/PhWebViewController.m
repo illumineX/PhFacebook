@@ -10,6 +10,7 @@
 #import "PhFacebook_URLs.h"
 #import "PhFacebook.h"
 #import "Debug.h"
+#import "JSONKit.h"
 
 //#define ALWAYS_SHOW_UI
 
@@ -55,7 +56,7 @@
 {
     NSBundle *bundle = [NSBundle bundleForClass: [PhFacebook class]];
     
-    //    self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
+    self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
 
     if ([self preferPopover])
     {
@@ -72,7 +73,7 @@
 
 - (BOOL) preferPopover
 {
-//    return NO;
+    //    return NO;
     return NSAppKitVersionNumber >= NSAppKitVersionNumber10_7;
 }
 
@@ -149,12 +150,12 @@
 
 - (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
-    parent.loginError = error;
+    [self showError:error];
 }
 
 -(void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
-    parent.loginError = error;
+    [self showError:error];
 }
 
 - (void) webView: (WebView*) sender didFinishLoadForFrame: (WebFrame*) frame
@@ -196,8 +197,22 @@
     }
     else
     {
-        // If access token is not retrieved, UI is shown to allow user to login/authorize
-        [self showUI];
+        // If access token is not retrieved, allow user to login/authorize or show an error message
+        
+        // Here we assume that getting a json response is always a sign of an error
+        WebDataSource *dataSource = [[sender mainFrame] dataSource];
+        if ([[[dataSource response] MIMEType] isEqualToString:@"application/json"]) {
+            NSDictionary *responseDict = nil;
+            if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_7) {
+                responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:[dataSource data] options:0 error:nil];
+            } else {
+                responseDict = (NSDictionary *) [[JSONDecoder decoder] objectWithData:[dataSource data] error:nil];
+            }
+            NSLog(@"Error when loading Facebook page: %@", responseDict);
+            [self showError:[self errorFromFacebookError:[responseDict valueForKey:@"error"]]];
+        } else {
+            [self showUI];
+        }
         sender.UIDelegate = self;
     }
 
@@ -229,4 +244,44 @@
     }
 }
 
+#pragma mark Utility
+
+- (NSError *) errorFromFacebookError:(NSDictionary *)facebookError
+{
+    if (!facebookError) return nil;
+    
+    NSBundle *myBundle = [NSBundle bundleForClass:[self class]];
+    NSString *errorMessage = [myBundle localizedStringForKey: @"FBAuthWindowErrorGenericMessage" value: @"" table: nil];
+    
+//    IMBResourceAccessibility iMediaErrorCode;
+    NSUInteger errorCode = [[facebookError valueForKey:@"code"] unsignedIntegerValue];
+//    switch (errorCode) {
+//        case 190:
+//            iMediaErrorCode = kIMBResourceNoPermission;
+//            break;
+//            
+//        default:
+//            iMediaErrorCode = kIMBResourceNoPermission;
+//    }
+    NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errorMessage};
+    return [NSError errorWithDomain:@"PhFacebookError" code:errorCode userInfo:userInfo];
+}
+
+- (void) showError:(NSError *)error
+{
+    NSBundle *myBundle = [NSBundle bundleForClass:[self class]];
+    NSString *messagePath = [myBundle pathForResource:@"error_message" ofType:@"html"];
+    NSURL *baseURL = [NSURL fileURLWithPath:[messagePath stringByDeletingLastPathComponent]];
+    NSError *fileLoadingError = nil;
+    NSString *errorIntro = [myBundle localizedStringForKey: @"FBAuthWindowErrorIntro" value: @"" table: nil];
+    NSString *messageFormat = [NSString stringWithContentsOfFile:messagePath
+                                                        encoding:NSUTF8StringEncoding
+                                                           error:&fileLoadingError];
+    NSString *errorMessage = [NSString stringWithFormat:messageFormat, errorIntro, error.localizedDescription];
+    
+    [self.webView.mainFrame loadHTMLString:errorMessage baseURL:baseURL];
+    
+    // Always log error to console to support support
+    NSLog(@"%@: %@", errorIntro, error);
+}
 @end
