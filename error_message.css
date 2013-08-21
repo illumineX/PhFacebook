@@ -1,10 +1,13 @@
 .intro {
-    color: #f60;
-    font-size: 16px;
+    color: #222;
+    font-size: 18px;
     font-family: Arial;
+    margin-top:16px;
 }
 .error {
-    color: #f60;
+    color: #555;
     font-size: 16px;
     font-family: Arial;
+    margin-top: 16px;
+    margin-left: 16px;
 }

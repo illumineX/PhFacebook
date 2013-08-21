@@ -6,6 +6,7 @@
    Copyright 2010 Philippe Casgrain. All rights reserved.
  */
  
-"FBAuthWindowTitle" = "Facebook Authentication";
-"FBAuthWindowCancel" = "Cancel";
-"FBAuthWindowErrorIntro" = "Could not connect to Facebook";
+"FBAuthWindowTitle" = "Facebook Authentifikation";
+"FBAuthWindowCancel" = "Abbrechen";
+"FBAuthWindowErrorIntro" = "Facebook Authentifikation nicht möglich";
+"FBAuthWindowErrorGenericMessage" = "Bitte versuchen Sie es später erneut oder wenden sich an den Support";
