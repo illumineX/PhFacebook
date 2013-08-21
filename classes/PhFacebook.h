@@ -63,12 +63,9 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 - (id) delegate;
 - (void) setDelegate:(id)delegate;
 
-// To be called when web view has finished loading success URL.
+// To be called when web view is done (either with or without having successfully logged in).
 // Will call completion handler that was provided earlier
-- (void) completeTokenRequestWithAccessToken:(NSString *)accessToken
-                                     expires:(NSTimeInterval)tokenExpires
-                                 permissions:(NSString *)perms
-                                       error:(NSError *)error;
+- (void) completeTokenRequestWithError:(NSError *)error;
 - (NSString*) accessToken;
 
 - (void) webViewWillShowUI;
