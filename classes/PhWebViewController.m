@@ -25,6 +25,7 @@
 @synthesize window;
 @synthesize webView;
 @synthesize cancelButton;
+@synthesize progressIndicator;
 @synthesize parent;
 @synthesize permissions;
 @synthesize popover=_popover;
@@ -111,6 +112,15 @@
 }
 
 
+/**
+ 
+ */
+- (void) webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
+{
+    [self.progressIndicator startAnimation:self];
+}
+
+
 - (void) webView: (WebView*) sender didCommitLoadForFrame: (WebFrame*) frame;
 {
     NSString *url = [sender mainFrameURL];
@@ -160,6 +170,8 @@
 
 - (void) webView: (WebView*) sender didFinishLoadForFrame: (WebFrame*) frame
 {
+    [self.progressIndicator stopAnimation:self];
+
     NSString *url = [sender mainFrameURL];
     DebugLog(@"didFinishLoadForFrame: {%@}", [url stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
 
