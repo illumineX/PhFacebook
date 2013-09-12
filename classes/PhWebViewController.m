@@ -49,12 +49,26 @@
 
 - (void) dealloc
 {
-    [_popover release];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    self.webView.UIDelegate = nil;
+    self.webView.frameLoadDelegate = nil;
+    
+    
+    if ([self preferPopover]) {
+        [_popover release];
+//        [window release];
+    } else {
+//        [window release];
+    }
+    
     [super dealloc];
 }
 
 - (void) awakeFromNib
 {
+//    NSLog(@"Web View Controller: %@", self);
+    
     NSBundle *bundle = [NSBundle bundleForClass: [PhFacebook class]];
     
     self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
@@ -65,6 +79,7 @@
         [self.popover setDelegate:self];
         [self.popover setContentViewController:self];
     } else {
+//        [self.window setReleasedWhenClosed:NO];     // behave like NSPopover
         [self.window setContentView:self.view];
         self.window.title = [bundle localizedStringForKey: @"FBAuthWindowTitle" value: @"" table: nil];
         self.window.delegate = self;
@@ -74,7 +89,7 @@
 
 - (BOOL) preferPopover
 {
-    //    return NO;
+//    return NO;
     return NSAppKitVersionNumber >= NSAppKitVersionNumber10_7;
 }
 
@@ -82,16 +97,54 @@
 {
     _relativeToRect = relativeToRect;
     _rectParentView = view;
+    
+    // NSPopovers don't play well with NSOutlineView nodes being expanded or collapsed:
+    // The NSPopover will stay at the same position.
+    // Therefore, let me know when that happens, so I can close the popover
+    
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter addObserver:self
+                           selector:@selector(parentViewDidChange:)
+                               name:NSOutlineViewItemDidExpandNotification
+                             object:view];
+    [notificationCenter addObserver:self
+                           selector:@selector(parentViewDidChange:)
+                               name:NSOutlineViewItemDidCollapseNotification
+                             object:view];
+}
+
+/**
+ When the view that our login popover or login window is attached to (we call it "parent") changes
+ in specific ways (like an outline view expanding a node) we close the login popover/window.
+ 
+ @discussion
+ NSPopovers don't play well with NSOutlineView nodes being expanded or collapsed:
+ The NSPopover will stay at the same position
+ */
+- (void) parentViewDidChange:(NSNotification *)notification
+{
+    [self cancel:[notification object]];
 }
 
 - (void) popoverWillClose: (NSNotification*) notification
 {
+    // Will also release self from PhFacebook object
+    
     [parent performSelector: @selector(didDismissUI)];
 }
 
 - (void) windowWillClose: (NSNotification*) notification
 {
     [parent performSelector: @selector(didDismissUI)];
+}
+
+/**
+ Sets the popover property to nil so we break the retain cycle 
+ */
+- (void) popoverDidClose:(NSNotification *)notification
+{
+    // Will dealloc popover and in turn self (because no longer retained by popover)
+    self.popover = nil;
 }
 
 #pragma mark Delegate
@@ -111,6 +164,11 @@
     [self.parent webViewWillShowUI];
 }
 
+
+//-(void)webView:(WebView *)sender mouseDidMoveOverElement:(NSDictionary *)elementInformation modifierFlags:(NSUInteger)modifierFlags
+//{
+//    NSLog(@"Web View %@ is calling me back: %@", sender, self);
+//}
 
 /**
  
@@ -225,7 +283,7 @@
         } else {
             [self showUI];
         }
-        sender.UIDelegate = self;
+//        sender.UIDelegate = self;
     }
 
 #ifdef ALWAYS_SHOW_UI
