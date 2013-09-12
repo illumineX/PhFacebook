@@ -58,6 +58,13 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 // see http://developers.facebook.com/docs/reference/fql/
 - (void) sendFQLRequest: (NSString*) query;
 
+/**
+ Sends an FQL query synchronously
+ 
+ @returns Dictionary containing the following keys: request (string), sender, result (as string), resultDict, raw (raw result data), Error
+ */
+- (NSDictionary *)sendSynchronousFQLRequest:(NSString *)query;
+
 - (void) invalidateCachedToken;
 
 - (id) delegate;

@@ -215,7 +215,7 @@
         if (_webViewController == nil)
         {
             _webViewController = [[PhWebViewController alloc] init];
-            [NSBundle loadNibNamed: @"PhWebViewController" owner: _webViewController];
+            [_webViewController loadView];
         }
 
         // Prepare window but keep it ordered out. The _webViewController will make it visible
@@ -240,6 +240,9 @@
 //
 - (void) completeTokenRequestWithError:(NSError *)error
 {
+    [_webViewController release];
+    _webViewController = nil;
+    
     if (self.tokenRequestCompletionHandler)
     {
         self.tokenRequestCompletionHandler([self authenticationResultFromToken:_authToken error:error]);
@@ -260,7 +263,7 @@
     NSDictionary *result = nil;
     NSString *responseStr = nil;
     NSDictionary *responseDict = nil;
-    NSDictionary *facebookError = nil;
+    id facebookError = nil;
     if (data) {
         responseStr = [[NSString alloc] initWithBytesNoCopy: (void*)[data bytes]
                                                      length: [data length]
@@ -279,12 +282,12 @@
         facebookError = [responseDict valueForKey:@"error"];
     }
     // Any nil in parameter list of NSDictionary creation will terminate parameter list
-    if (facebookError) {
+    if (facebookError && [facebookError isKindOfClass:[NSDictionary class]]) {
         result = [NSDictionary dictionaryWithObjectsAndKeys:
                   request, @"request",
                   self, @"sender",
                   facebookError, @"error",
-                  data, @"raw",
+//                  data, @"raw",
                   responseStr, @"result",
                   responseDict, @"resultDict",
                   nil];
@@ -292,7 +295,7 @@
         result = [NSDictionary dictionaryWithObjectsAndKeys:
                   request, @"request",
                   self, @"sender",
-                  data, @"raw",
+//                  data, @"raw",
                   responseStr, @"result",
                   responseDict, @"resultDict",
                   nil];
@@ -303,7 +306,7 @@
 
 - (NSDictionary *)_doRequest:(NSDictionary *)allParams
 {
-    __block NSDictionary *result = nil;
+    NSDictionary *result = nil;
     
     if (_authToken)
     {
@@ -376,30 +379,9 @@
         
         NSData *data = [NSURLConnection sendSynchronousRequest: req returningResponse: &response error: &error];
         
+        // Error out parameter from sending request is not yet taken into consideration
+        
         result = [self resultFromRequest:request data:data];
-        
-        error = [result objectForKey:@"error"];
-//        if (error && error.code == 190)           // Session expired
-//        {
-//            // Re-authenticate and then re-execute _doRequest a second time if authentication was successful
-//            
-//            dispatch_semaphore_t secondTryDoneAfterReauthentication = dispatch_semaphore_create(0);
-//
-//            NSArray *permissions = [_authToken.permissions componentsSeparatedByString:@","];
-//            [self clearToken];
-//            [self getAccessTokenForPermissions:permissions cached:NO completion:^(NSDictionary *result) {
-//                NSError *tokenError = [result objectForKey:@"error"];
-//                if (!tokenError)
-//                {
-//                    // 2nd try for executing request
-//                    result = [self _doRequest:allParams];
-//                }
-//                dispatch_semaphore_signal(secondTryDoneAfterReauthentication);
-//            }];
-//            dispatch_semaphore_wait(secondTryDoneAfterReauthentication, DISPATCH_TIME_FOREVER);
-//        }
-        
-        //        [pool drain];
     }
     return result;
 }
@@ -411,6 +393,12 @@
         NSDictionary *result = [self _doRequest:allParams];
         [_delegate performSelectorOnMainThread:@selector(requestResult:) withObject: result waitUntilDone:YES];
     }
+}
+
+- (void) sendRequest:(NSString*) request
+{
+    NSDictionary *allParams = [self allParams:nil request:request HTTPMethod:@"GET"];
+    [NSThread detachNewThreadSelector:@selector(sendFacebookRequest:) toTarget:self withObject:allParams];
 }
 
 - (NSDictionary *)sendSynchronousFacebookRequest:(NSDictionary *)allParams
@@ -425,12 +413,6 @@
             request, @"request",
             method, @"requestMethod",
             params, @"params", nil];        // params may be nil
-}
-
-- (void) sendRequest:(NSString*) request
-{
-    NSDictionary *allParams = [self allParams:nil request:request HTTPMethod:@"GET"];
-    [NSThread detachNewThreadSelector:@selector(sendFacebookRequest:) toTarget:self withObject:allParams];
 }
 
 - (NSDictionary *)sendSynchronousRequest:(NSString *)request
@@ -451,6 +433,33 @@
     return [self sendSynchronousRequest:request params:nil];
 }
 
+/**
+ Sends an FQL query synchronously
+ 
+ @returns Dictionary containing the following keys: request (string), sender, result (as string), resultDict, raw (raw result data), Error
+ */
+- (NSDictionary *)sendSynchronousFQLRequest:(NSString *)query
+{
+    NSDictionary *result = nil;
+    
+    if (_authToken)
+    {
+        NSString *str = [NSString stringWithFormat: kFBGraphApiFqlURL, [query stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], _authToken.authenticationToken];
+        
+        NSLog(@"FQL query request: %@", str);
+        
+        NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL: [NSURL URLWithString: str]];
+        
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *data = [NSURLConnection sendSynchronousRequest: req returningResponse: &response error: &error];
+        
+        // Error out parameter from sending request is not yet taken into consideration
+        
+        result = [self resultFromRequest:query data:data];
+    }
+    return result;
+}
 
 - (void) sendFacebookFQLRequest: (NSString*) query
 {
