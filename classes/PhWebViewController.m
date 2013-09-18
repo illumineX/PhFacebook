@@ -314,6 +314,19 @@
     }
 }
 
+#pragma mark WebEditingDelegate
+
+/**
+ The WebView's undo manager seems to confuse the undo manager of the host app.
+ Since there doesn't seem to be any value of an undo manager in Facebook's login pages we just go without.
+ 
+ @returns nil
+ */
+- (NSUndoManager *)undoManagerForWebView:(WebView *)webView
+{
+    return nil;
+}
+
 #pragma mark Utility
 
 - (NSError *) errorFromFacebookError:(NSDictionary *)facebookError
