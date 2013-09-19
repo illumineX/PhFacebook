@@ -18,6 +18,12 @@
 
 @property (retain) id popover;
 
+/**
+ Provide a dedicated undo manager for the web view since editing the login field would otherwise propagate
+ undo/redo actions to the document's undo manager in document-based apps thus marking the document as edited.
+ */
+@property (retain) NSUndoManager *undoManager;
+
 @end
 
 @implementation PhWebViewController
@@ -29,6 +35,7 @@
 @synthesize parent;
 @synthesize permissions;
 @synthesize popover=_popover;
+@synthesize undoManager=_undoManager;
 
 // Designated initializer
 //
@@ -36,7 +43,7 @@
 {
 	if (self = [super initWithNibName:[self className] bundle:[NSBundle bundleForClass:[self class]]])
 	{
-        ;
+        self.undoManager = [[[NSUndoManager alloc] init] autorelease];
 	}
 	return self;
 }
@@ -54,6 +61,7 @@
     self.webView.UIDelegate = nil;
     self.webView.frameLoadDelegate = nil;
     
+    [_undoManager release];
     
     if ([self preferPopover]) {
         [_popover release];
@@ -67,12 +75,12 @@
 
 - (void) awakeFromNib
 {
-//    NSLog(@"Web View Controller: %@", self);
-    
     NSBundle *bundle = [NSBundle bundleForClass: [PhFacebook class]];
     
     self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
 
+    [self.webView setEditingDelegate:self];     // Need this for providing undo manager for WebView
+    
     if ([self preferPopover])
     {
         self.popover = [[[NSPopover alloc] init] autorelease];
@@ -317,14 +325,12 @@
 #pragma mark WebEditingDelegate
 
 /**
- The WebView's undo manager seems to confuse the undo manager of the host app.
- Since there doesn't seem to be any value of an undo manager in Facebook's login pages we just go without.
- 
- @returns nil
+ Provides a dedicated undo manager for the web view since editing the login field would otherwise propagate
+ undo/redo actions to the document's undo manager in document-based apps thus marking the document as edited.
  */
 - (NSUndoManager *)undoManagerForWebView:(WebView *)webView
 {
-    return nil;
+    return self.undoManager;
 }
 
 #pragma mark Utility
