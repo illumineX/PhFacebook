@@ -60,6 +60,7 @@
     
     self.webView.UIDelegate = nil;
     self.webView.frameLoadDelegate = nil;
+    self.webView.editingDelegate = nil;
     
     [_undoManager release];
     
