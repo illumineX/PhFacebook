@@ -311,6 +311,14 @@
 
 #pragma mark WebUIDelegate
 
+/**
+ Tells the login WebView to not accept any objects as a dragging destination.
+ */
+-(NSUInteger)webView:(WebView *)webView dragDestinationActionMaskForDraggingInfo:(id<NSDraggingInfo>)draggingInfo
+{
+    return WebDragDestinationActionNone;
+}
+
 // Need to implement this delegate method since user might click on "Cancel" button in web view
 // which doesn't seem to trigger invocation of -popoverWillClose.
 //
