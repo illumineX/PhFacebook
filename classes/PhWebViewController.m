@@ -16,7 +16,7 @@
 
 @interface PhWebViewController ()
 
-@property (retain) id popover;
+@property (retain) NSPopover *popover;
 
 /**
  Provide a dedicated undo manager for the web view since editing the login field would otherwise propagate
