@@ -227,11 +227,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0450;
-				TargetAttributes = {
-					8DC2EF4F0486A6940098B216 = {
-						DevelopmentTeam = 8M57J3JQZP;
-					};
-				};
 			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "PhFacebook" */;
 			compatibilityVersion = "Xcode 3.2";
