@@ -70,6 +70,8 @@
     [_appID release];
     [_webViewController release];
     [_authToken release];
+    [_tokenRequestCompletionHandler release];
+    [_loginError release];
     [super dealloc];
 }
 
