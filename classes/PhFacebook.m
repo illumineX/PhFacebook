@@ -446,7 +446,8 @@
     
     if (_authToken)
     {
-        NSString *str = [NSString stringWithFormat: kFBGraphApiFqlURL, [query stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], _authToken.authenticationToken];
+        NSString *escQuery = [query stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLQueryAllowedCharacterSet]];
+        NSString *str = [NSString stringWithFormat: kFBGraphApiFqlURL, escQuery, _authToken.authenticationToken];
         
         NSLog(@"FQL query request: %@", str);
         
@@ -469,7 +470,8 @@
 
     if (_authToken)
     {
-        NSString *str = [NSString stringWithFormat: kFBGraphApiFqlURL, [query stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], _authToken.authenticationToken];
+        NSString *escQuery = [query stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLQueryAllowedCharacterSet]];
+        NSString *str = [NSString stringWithFormat: kFBGraphApiFqlURL, escQuery, _authToken.authenticationToken];
 
         NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL: [NSURL URLWithString: str]];
 
