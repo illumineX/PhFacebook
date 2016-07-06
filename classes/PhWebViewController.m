@@ -196,7 +196,7 @@
 - (void) webView: (WebView*) sender didCommitLoadForFrame: (WebFrame*) frame;
 {
     NSString *url = [sender mainFrameURL];
-    DebugLog(@"didCommitLoadForFrame: {%@}", [url stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
+    DebugLog(@"didCommitLoadForFrame: {%@}", url);
 
     NSString *urlWithoutSchema = [url substringFromIndex: [@"http://" length]];
     if ([url hasPrefix: @"https://"])
@@ -245,7 +245,7 @@
     [self.progressIndicator stopAnimation:self];
 
     NSString *url = [sender mainFrameURL];
-    DebugLog(@"didFinishLoadForFrame: {%@}", [url stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
+    DebugLog(@"didFinishLoadForFrame: {%@}", url);
 
     NSString *urlWithoutSchema = [url substringFromIndex: [@"http://" length]];
     if ([url hasPrefix: @"https://"])
