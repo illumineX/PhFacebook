@@ -9,17 +9,17 @@
 /* Begin PBXBuildFile section */
 		3003932F17BA7833000912DE /* error_message.html in Resources */ = {isa = PBXBuildFile; fileRef = 3003932E17BA7833000912DE /* error_message.html */; };
 		304CBCCD1739287300C562F6 /* WebView+PhFacebook.h in Headers */ = {isa = PBXBuildFile; fileRef = 304CBCCB1739287300C562F6 /* WebView+PhFacebook.h */; };
-		304CBCCE1739287300C562F6 /* WebView+PhFacebook.m in Sources */ = {isa = PBXBuildFile; fileRef = 304CBCCC1739287300C562F6 /* WebView+PhFacebook.m */; };
+		304CBCCE1739287300C562F6 /* WebView+PhFacebook.m in Sources */ = {isa = PBXBuildFile; fileRef = 304CBCCC1739287300C562F6 /* WebView+PhFacebook.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		309CA11217731DBA008897F3 /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 309CA11017731DBA008897F3 /* JSONKit.h */; };
-		309CA11317731DBA008897F3 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 309CA11117731DBA008897F3 /* JSONKit.m */; };
+		309CA11317731DBA008897F3 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 309CA11117731DBA008897F3 /* JSONKit.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		30A879E317BBA671006580CF /* error_message.css in Resources */ = {isa = PBXBuildFile; fileRef = 30A879E217BBA671006580CF /* error_message.css */; };
 		374AB110122CB847004A5C23 /* Debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 374AB10F122CB846004A5C23 /* Debug.h */; };
 		375CCD711225EED40064B3AE /* PhFacebook.h in Headers */ = {isa = PBXBuildFile; fileRef = 375CCD6F1225EED40064B3AE /* PhFacebook.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		375CCD721225EED40064B3AE /* PhFacebook.m in Sources */ = {isa = PBXBuildFile; fileRef = 375CCD701225EED40064B3AE /* PhFacebook.m */; };
+		375CCD721225EED40064B3AE /* PhFacebook.m in Sources */ = {isa = PBXBuildFile; fileRef = 375CCD701225EED40064B3AE /* PhFacebook.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		378DEC0E1228B619008061E4 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 378DEC0D1228B618008061E4 /* WebKit.framework */; };
-		378DEC161228B9FD008061E4 /* PhWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 378DEC141228B9FD008061E4 /* PhWebViewController.m */; };
+		378DEC161228B9FD008061E4 /* PhWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 378DEC141228B9FD008061E4 /* PhWebViewController.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		37FB6F89122ACEB6006339F3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37FB6F87122ACEB6006339F3 /* Localizable.strings */; };
-		37FB6FEE122AD367006339F3 /* PhAuthenticationToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 37FB6FEC122AD367006339F3 /* PhAuthenticationToken.m */; };
+		37FB6FEE122AD367006339F3 /* PhAuthenticationToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 37FB6FEC122AD367006339F3 /* PhAuthenticationToken.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		37FB72D4122B5C7D006339F3 /* PhWebViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37FB72D3122B5C7D006339F3 /* PhWebViewController.xib */; };
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
@@ -322,6 +322,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_MALLOC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -348,6 +349,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_MALLOC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
