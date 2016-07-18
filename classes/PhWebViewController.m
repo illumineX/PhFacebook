@@ -42,7 +42,7 @@
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
 	// Disregard parameters - nib name is an implementation detail
-	if (self = [super initWithNibName:[self className] bundle:[NSBundle bundleForClass:[self class]]])
+	if (self = [super initWithNibName:self.className bundle:[NSBundle bundleForClass:[self class]]])
 	{
         self.undoManager = [[[NSUndoManager alloc] init] autorelease];
 	}
@@ -85,7 +85,7 @@
     
     self.cancelButton.title = [bundle localizedStringForKey: @"FBAuthWindowCancel" value: @"" table: nil];
 
-    [self.webView setEditingDelegate:self];     // Need this for providing undo manager for WebView
+    (self.webView).editingDelegate = self;     // Need this for providing undo manager for WebView
     
     if ([self preferPopover])
     {
@@ -94,7 +94,7 @@
         [self.popover setContentViewController:self];
     } else {
 //        [self.window setReleasedWhenClosed:NO];     // behave like NSPopover
-        [self.window setContentView:self.view];
+        (self.window).contentView = self.view;
         self.window.title = [bundle localizedStringForKey: @"FBAuthWindowTitle" value: @"" table: nil];
         self.window.delegate = self;
         self.window.level = NSFloatingWindowLevel;
@@ -137,7 +137,7 @@
  */
 - (void) parentViewDidChange:(NSNotification *)notification
 {
-    [self cancel:[notification object]];
+    [self cancel:notification.object];
 }
 
 - (void) popoverWillClose: (NSNotification*) notification
@@ -195,15 +195,15 @@
 
 - (void) webView: (WebView*) sender didCommitLoadForFrame: (WebFrame*) frame;
 {
-    NSString *url = [sender mainFrameURL];
+    NSString *url = sender.mainFrameURL;
     DebugLog(@"didCommitLoadForFrame: {%@}", url);
 
-    NSString *urlWithoutSchema = [url substringFromIndex: [@"http://" length]];
+    NSString *urlWithoutSchema = [url substringFromIndex: (@"http://").length];
     if ([url hasPrefix: @"https://"])
-        urlWithoutSchema = [url substringFromIndex: [@"https://" length]];
+        urlWithoutSchema = [url substringFromIndex: (@"https://").length];
     
-    NSString *uiServerURLWithoutSchema = [kFBUIServerURL substringFromIndex: [@"http://" length]];
-    NSComparisonResult res = [urlWithoutSchema compare: uiServerURLWithoutSchema options: NSCaseInsensitiveSearch range: NSMakeRange(0, [uiServerURLWithoutSchema length])];
+    NSString *uiServerURLWithoutSchema = [kFBUIServerURL substringFromIndex: (@"http://").length];
+    NSComparisonResult res = [urlWithoutSchema compare: uiServerURLWithoutSchema options: NSCaseInsensitiveSearch range: NSMakeRange(0, uiServerURLWithoutSchema.length)];
     if (res == NSOrderedSame)
         [self showUI];
 
@@ -220,10 +220,10 @@
     if (paramNameRange.location != NSNotFound)
     {
         // Search for '&' or end-of-string
-        NSRange searchRange = NSMakeRange(paramNameRange.location + paramNameRange.length, [url length] - (paramNameRange.location + paramNameRange.length));
+        NSRange searchRange = NSMakeRange(paramNameRange.location + paramNameRange.length, url.length - (paramNameRange.location + paramNameRange.length));
         NSRange ampRange = [url rangeOfString: @"&" options: NSCaseInsensitiveSearch range: searchRange];
         if (ampRange.location == NSNotFound)
-            ampRange.location = [url length];
+            ampRange.location = url.length;
         res = [url substringWithRange: NSMakeRange(searchRange.location, ampRange.location - searchRange.location)];
     }
 
@@ -244,15 +244,15 @@
 {
     [self.progressIndicator stopAnimation:self];
 
-    NSString *url = [sender mainFrameURL];
+    NSString *url = sender.mainFrameURL;
     DebugLog(@"didFinishLoadForFrame: {%@}", url);
 
-    NSString *urlWithoutSchema = [url substringFromIndex: [@"http://" length]];
+    NSString *urlWithoutSchema = [url substringFromIndex: (@"http://").length];
     if ([url hasPrefix: @"https://"])
-        urlWithoutSchema = [url substringFromIndex: [@"https://" length]];
+        urlWithoutSchema = [url substringFromIndex: (@"https://").length];
     
     NSString *loginSuccessURLWithoutSchema = [kFBLoginSuccessURL substringFromIndex: 8];
-    NSComparisonResult res = [urlWithoutSchema compare: loginSuccessURLWithoutSchema options: NSCaseInsensitiveSearch range: NSMakeRange(0, [loginSuccessURLWithoutSchema length])];
+    NSComparisonResult res = [urlWithoutSchema compare: loginSuccessURLWithoutSchema options: NSCaseInsensitiveSearch range: NSMakeRange(0, loginSuccessURLWithoutSchema.length)];
     if (res == NSOrderedSame)
     {
         NSString *accessToken = [self extractParameter: kFBAccessToken fromURL: url];
@@ -260,13 +260,11 @@
         NSString *errorReason = [self extractParameter: kFBErrorReason fromURL: url];
         
         if (errorReason) {
-            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      errorReason, NSLocalizedDescriptionKey,
-                                      nil];
+            NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errorReason};
             // For lack of better code picked arbitrary
             parent.loginError = [NSError errorWithDomain:@"PhFacebookError" code:-1 userInfo:userInfo];
         }
-        [parent setAccessToken:accessToken expires:[tokenExpires floatValue] permissions:self.permissions];
+        [parent setAccessToken:accessToken expires:tokenExpires.floatValue permissions:self.permissions];
         
         if ([self preferPopover]) {
             if ([self.popover isShown]) {
@@ -284,13 +282,13 @@
         // If access token is not retrieved, allow user to login/authorize or show an error message
         
         // Here we assume that getting a json response is always a sign of an error
-        WebDataSource *dataSource = [[sender mainFrame] dataSource];
-        if ([[[dataSource response] MIMEType] isEqualToString:@"application/json"]) {
+        WebDataSource *dataSource = sender.mainFrame.dataSource;
+        if ([dataSource.response.MIMEType isEqualToString:@"application/json"]) {
             NSDictionary *responseDict = nil;
             if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_7) {
-                responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:[dataSource data] options:0 error:nil];
+                responseDict = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:dataSource.data options:0 error:nil];
             } else {
-                responseDict = (NSDictionary *) [[JSONDecoder decoder] objectWithData:[dataSource data] error:nil];
+                responseDict = (NSDictionary *) [[JSONDecoder decoder] objectWithData:dataSource.data error:nil];
             }
             NSLog(@"Error when loading Facebook page: %@", responseDict);
             [self showError:[self errorFromFacebookError:[responseDict valueForKey:@"error"]]];
@@ -374,7 +372,7 @@
 {
     NSBundle *myBundle = [NSBundle bundleForClass:[self class]];
     NSString *messagePath = [myBundle pathForResource:@"error_message" ofType:@"html"];
-    NSURL *baseURL = [NSURL fileURLWithPath:[messagePath stringByDeletingLastPathComponent]];
+    NSURL *baseURL = [NSURL fileURLWithPath:messagePath.stringByDeletingLastPathComponent];
     NSError *fileLoadingError = nil;
     NSString *errorIntro = [myBundle localizedStringForKey: @"FBAuthWindowErrorIntro" value: @"" table: nil];
     NSString *messageFormat = [NSString stringWithContentsOfFile:messagePath
