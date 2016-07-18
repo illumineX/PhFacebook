@@ -46,9 +46,9 @@
 
     */
     
-    [self setCustomUserAgent:[NSString stringWithFormat:@"%@ Safari%@", webViewUserAgent, match]];
+    self.customUserAgent = [NSString stringWithFormat:@"%@ Safari%@", webViewUserAgent, match];
 
-    NSLog(@"HTTP User Agent posing as Safari: %@", [self customUserAgent]);
+    NSLog(@"HTTP User Agent posing as Safari: %@", self.customUserAgent);
     
 }
 

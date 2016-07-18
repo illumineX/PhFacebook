@@ -24,7 +24,7 @@
 
 #pragma mark NSCoding Protocol
 
-- (id)initWithCoder:(NSCoder *)coder
+- (instancetype)initWithCoder:(NSCoder *)coder
 {
     self = [super init];
     if (self) {
@@ -44,12 +44,12 @@
 
 // Designated initializer for completion block based authorization
 //
-- (id) initWithApplicationID:(NSString *)appID
+- (instancetype) initWithApplicationID:(NSString *)appID
 {
 	return [self initWithApplicationID:appID delegate:nil];
 }
 
-- (id) initWithApplicationID: (NSString*) appID delegate: (id) delegate
+- (instancetype) initWithApplicationID: (NSString*) appID delegate: (id) delegate
 {
     if ((self = [super init]))
     {
@@ -91,15 +91,15 @@
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     if (token)
     {
-        [result setObject: [NSNumber numberWithBool: YES] forKey: @"valid"];
+        result[@"valid"] = @YES;
     }
     else
     {
-        [result setObject: [NSNumber numberWithBool: NO] forKey: @"valid"];
+        result[@"valid"] = @NO;
         
         // If the user hit cancel there will be no error
         if (error) {
-            [result setObject: error forKey: @"error"];
+            result[@"error"] = error;
         }
     }
     return result;
@@ -176,7 +176,7 @@
         if (accessToken && perms)
         {
             // Do not notify delegate yet...
-            [self setAccessToken: accessToken expires: [date timeIntervalSinceNow] permissions: perms];
+            [self setAccessToken: accessToken expires: date.timeIntervalSinceNow permissions: perms];
         }
     }
 
@@ -233,7 +233,7 @@
         // When using NSPopover for login need positioning parameters
         [_webViewController setRelativeToRect:rect ofView:view];
         
-        [webView setMainFrameURL: authURL];
+        webView.mainFrameURL = authURL;
     }
 }
 
@@ -263,12 +263,12 @@
 - (NSDictionary*) resultFromRequest:(NSString *)request data:(NSData *)data
 {
     NSDictionary *result = nil;
-    NSString *responseStr = nil;
-    NSDictionary *responseDict = nil;
+    NSString *responseStr = @"";
+    NSDictionary *responseDict = @{};
     id facebookError = nil;
     if (data) {
-        responseStr = [[NSString alloc] initWithBytesNoCopy: (void*)[data bytes]
-                                                     length: [data length]
+        responseStr = [[NSString alloc] initWithBytesNoCopy: (void*)data.bytes
+                                                     length: data.length
                                                    encoding:NSASCIIStringEncoding
                                                freeWhenDone: NO];
         
@@ -285,22 +285,18 @@
     }
     // Any nil in parameter list of NSDictionary creation will terminate parameter list
     if (facebookError && [facebookError isKindOfClass:[NSDictionary class]]) {
-        result = [NSDictionary dictionaryWithObjectsAndKeys:
-                  request, @"request",
-                  self, @"sender",
-                  facebookError, @"error",
+        result = @{@"request": request,
+                  @"sender": self,
+                  @"error": facebookError,
 //                  data, @"raw",
-                  responseStr, @"result",
-                  responseDict, @"resultDict",
-                  nil];
+                  @"result": responseStr,
+                  @"resultDict": responseDict};
     } else {
-        result = [NSDictionary dictionaryWithObjectsAndKeys:
-                  request, @"request",
-                  self, @"sender",
+        result = @{@"request": request,
+                  @"sender": self,
 //                  data, @"raw",
-                  responseStr, @"result",
-                  responseDict, @"resultDict",
-                  nil];
+                  @"result": responseStr,
+                  @"resultDict": responseDict};
     }
     [responseStr release];
     return result;
@@ -314,19 +310,19 @@
     {
         //        NSAutoreleasePool *pool = [NSAutoreleasePool new];
         
-        NSString *request = [allParams objectForKey: @"request"];
+        NSString *request = allParams[@"request"];
         NSString *str;
         
         // Determine request method
         
-        NSString *requestMethod = [allParams objectForKey:@"requestMethod"];
+        NSString *requestMethod = allParams[@"requestMethod"];
         BOOL postRequest = NO;
         if (requestMethod) {
             if ([requestMethod isEqualToString:@"POST"]) {
                 postRequest = YES;
             }
         } else {
-            postRequest = [[allParams objectForKey: @"postRequest"] boolValue];
+            postRequest = [allParams[@"postRequest"] boolValue];
             requestMethod = postRequest ? @"POST" : @"GET";
         }
         
@@ -345,32 +341,32 @@
         }
         
         
-        NSDictionary *params = [allParams objectForKey: @"params"];
+        NSDictionary *params = allParams[@"params"];
         NSMutableString *strPostParams = nil;
         if (params != nil)
         {
             if (postRequest)
             {
                 strPostParams = [NSMutableString stringWithFormat: @"access_token=%@", _authToken.authenticationToken];
-                for (NSString *p in [params allKeys])
-                    [strPostParams appendFormat: @"&%@=%@", p, [params objectForKey: p]];
+                for (NSString *p in params.allKeys)
+                    [strPostParams appendFormat: @"&%@=%@", p, params[p]];
             }
             else
             {
                 NSMutableString *strWithParams = [NSMutableString stringWithString: str];
-                for (NSString *p in [params allKeys])
-                    [strWithParams appendFormat: @"&%@=%@", p, [params objectForKey: p]];
+                for (NSString *p in params.allKeys)
+                    [strWithParams appendFormat: @"&%@=%@", p, params[p]];
                 str = strWithParams;
             }
         }
         
         NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL: [NSURL URLWithString: str]];
-        [req setHTTPMethod:requestMethod];
+        req.HTTPMethod = requestMethod;
         
         if (postRequest)
         {
-            NSData *requestData = [NSData dataWithBytes: [strPostParams UTF8String] length: [strPostParams length]];
-            [req setHTTPBody: requestData];
+            NSData *requestData = [NSData dataWithBytes: strPostParams.UTF8String length: strPostParams.length];
+            req.HTTPBody = requestData;
             [req setValue: @"application/x-www-form-urlencoded" forHTTPHeaderField: @"content-type"];
         }
         
@@ -411,10 +407,9 @@
 
 - (NSDictionary *)allParams:(NSDictionary*)params request:(NSString *)request HTTPMethod:(NSString *)method
 {
-    return [NSDictionary dictionaryWithObjectsAndKeys:
-            request, @"request",
-            method, @"requestMethod",
-            params, @"params", nil];        // params may be nil
+    return @{@"request": request,
+            @"requestMethod": method,
+            @"params": params};        // params may be nil
 }
 
 - (NSDictionary *)sendSynchronousRequest:(NSString *)request
@@ -481,14 +476,12 @@
 
         if ([_delegate respondsToSelector: @selector(requestResult:)])
         {
-            NSString *str = [[NSString alloc] initWithBytesNoCopy: (void*)[data bytes] length: [data length] encoding:NSASCIIStringEncoding freeWhenDone: NO];
+            NSString *str = [[NSString alloc] initWithBytesNoCopy: (void*)data.bytes length: data.length encoding:NSASCIIStringEncoding freeWhenDone: NO];
 
-            NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    str, @"result",
-                                    query, @"request",
-                                    data, @"raw",
-                                    self, @"sender",
-                                    nil];
+            NSDictionary *result = @{@"result": str,
+                                    @"request": query,
+                                    @"raw": data,
+                                    @"sender": self};
             [_delegate performSelectorOnMainThread:@selector(requestResult:) withObject: result waitUntilDone:YES];
             [str release];
         }

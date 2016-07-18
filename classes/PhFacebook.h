@@ -32,7 +32,7 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 // Any error that has been encountered attempting to login
 @property (retain) NSError *loginError;
 
-- (id) initWithApplicationID: (NSString*) appID delegate: (id) delegate;
+- (instancetype) initWithApplicationID: (NSString*) appID delegate: (id) delegate NS_DESIGNATED_INITIALIZER;
 
 // permissions: an array of required permissions
 //              see http://developers.facebook.com/docs/authentication/permissions
@@ -67,13 +67,12 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 
 - (void) invalidateCachedToken;
 
-- (id) delegate;
-- (void) setDelegate:(id)delegate;
+@property (NS_NONATOMIC_IOSONLY, assign) id delegate;
 
 // To be called when web view is done (either with or without having successfully logged in).
 // Will call completion handler that was provided earlier
 - (void) completeTokenRequestWithError:(NSError *)error;
-- (NSString*) accessToken;
+@property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *accessToken;
 
 - (void) webViewWillShowUI;
 - (void) didDismissUI;
