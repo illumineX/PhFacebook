@@ -18,7 +18,7 @@
     // Safari user agent string looks like this (version numbers may vary):
     // @"Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/536.29.13 (KHTML, like Gecko) Version/6.0.4 Safari/536.29.13"
     
-    NSString *webViewUserAgent = [self userAgentForURL:[NSURL URLWithString:@"http://www.apple.com"]];
+    NSString *webViewUserAgent = [self userAgentForURL:[NSURL URLWithString:@"https://www.apple.com"]];
     
     NSScanner *userAgentScanner = [NSScanner scannerWithString:webViewUserAgent];
     NSString *scanResult = nil;

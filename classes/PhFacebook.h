@@ -35,7 +35,7 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 - (instancetype) initWithApplicationID: (NSString*) appID delegate: (id) delegate NS_DESIGNATED_INITIALIZER;
 
 // permissions: an array of required permissions
-//              see http://developers.facebook.com/docs/authentication/permissions
+//              see https://developers.facebook.com/docs/authentication/permissions
 // canCache: save and retrieve token locally if not expired
 - (void) getAccessTokenForPermissions:(NSArray *)permissions
                                cached:(BOOL)canCache
@@ -46,7 +46,7 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 - (void) setAccessToken: (NSString*) accessToken expires: (NSTimeInterval) tokenExpires permissions: (NSString*) perms;
 
 // request: the short version of the Facebook Graph API, e.g. "me/feed"
-// see http://developers.facebook.com/docs/api
+// see https://developers.facebook.com/docs/api
 - (void) sendRequest: (NSString*) request;
 - (NSDictionary *)sendSynchronousRequest:(NSString *)request HTTPMethod:(NSString *)method params:(NSDictionary *)params;
 
@@ -55,7 +55,7 @@ typedef void (^PhTokenRequestCompletionHandler)(NSDictionary *result);
 - (NSDictionary *)sendSynchronousRequest:(NSString *)request;
 
 // query: the query to send to FQL API, e.g. "SELECT uid, sex, name from user WHERE uid = me()"
-// see http://developers.facebook.com/docs/reference/fql/
+// see https://developers.facebook.com/docs/reference/fql/
 - (void) sendFQLRequest: (NSString*) query;
 
 /**

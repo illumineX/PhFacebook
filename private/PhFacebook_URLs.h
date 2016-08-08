@@ -16,7 +16,7 @@
 
 #define kFBLoginSuccessURL @"https://www.facebook.com/connect/login_success.html"
 
-#define kFBUIServerURL @"http://www.facebook.com/connect/uiserver.php"
+#define kFBUIServerURL @"https://www.facebook.com/connect/uiserver.php"
 
 #define kFBAccessToken @"access_token="
 #define kFBExpiresIn   @"expires_in="
@@ -29,5 +29,5 @@
 
 #define kFBGraphApiFqlURL @"https://api.facebook.com/method/fql.query?query=%@&access_token=%@&format=json"
 
-#define kFBURL @"http://facebook.com"
+#define kFBURL @"https://facebook.com"
 #define kFBSecureURL @"https://facebook.com"
