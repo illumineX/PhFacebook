@@ -198,11 +198,11 @@
     NSString *url = sender.mainFrameURL;
     DebugLog(@"didCommitLoadForFrame: {%@}", url);
 
-    NSString *urlWithoutSchema = [url substringFromIndex: (@"http://").length];
+    NSString *urlWithoutSchema = [url substringFromIndex: (@"https://").length];
     if ([url hasPrefix: @"https://"])
         urlWithoutSchema = [url substringFromIndex: (@"https://").length];
     
-    NSString *uiServerURLWithoutSchema = [kFBUIServerURL substringFromIndex: (@"http://").length];
+    NSString *uiServerURLWithoutSchema = [kFBUIServerURL substringFromIndex: (@"https://").length];
     NSComparisonResult res = [urlWithoutSchema compare: uiServerURLWithoutSchema options: NSCaseInsensitiveSearch range: NSMakeRange(0, uiServerURLWithoutSchema.length)];
     if (res == NSOrderedSame)
         [self showUI];
@@ -247,7 +247,7 @@
     NSString *url = sender.mainFrameURL;
     DebugLog(@"didFinishLoadForFrame: {%@}", url);
 
-    NSString *urlWithoutSchema = [url substringFromIndex: (@"http://").length];
+    NSString *urlWithoutSchema = [url substringFromIndex: (@"https://").length];
     if ([url hasPrefix: @"https://"])
         urlWithoutSchema = [url substringFromIndex: (@"https://").length];
     

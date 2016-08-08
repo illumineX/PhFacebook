@@ -1,6 +1,6 @@
 //
 //  JSONKit.m
-//  http://github.com/johnezang/JSONKit
+//  https://github.com/johnezang/JSONKit
 //  Dual licensed under either the terms of the BSD License, or alternatively
 //  under the terms of the Apache License, Version 2.0, as specified below.
 //
@@ -44,7 +44,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
  
- http://www.apache.org/licenses/LICENSE-2.0
+ https://www.apache.org/licenses/LICENSE-2.0
  
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,11 +60,11 @@
   The bulk of the UTF8 / UTF32 conversion and verification comes
   from ConvertUTF.[hc].  It has been modified from the original sources.
 
-  The original sources were obtained from http://www.unicode.org/.
+  The original sources were obtained from https://www.unicode.org/.
   However, the web site no longer seems to host the files.  Instead,
-  the Unicode FAQ http://www.unicode.org/faq//utf_bom.html#gen4
+  the Unicode FAQ https://www.unicode.org/faq//utf_bom.html#gen4
   points to International Components for Unicode (ICU)
-  http://site.icu-project.org/ as an example of how to write a UTF
+  https://site.icu-project.org/ as an example of how to write a UTF
   converter.
 
   The decision to use the ConvertUTF.[ch] code was made to leverage
