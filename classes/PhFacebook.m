@@ -22,11 +22,15 @@
 
 @synthesize tokenRequestCompletionHandler=_tokenRequestCompletionHandler, loginError=_loginError;
 
+- (instancetype)init {
+    return [self initWithApplicationID:nil delegate:nil];
+}
+
 #pragma mark NSCoding Protocol
 
 - (instancetype)initWithCoder:(NSCoder *)coder
 {
-    self = [super init];
+    self = [self initWithApplicationID:nil delegate:nil];
     if (self) {
         _appID = [[coder decodeObjectForKey:@"appID"] retain];
         _authToken = [[coder decodeObjectForKey:@"authToken"] retain];
