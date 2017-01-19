@@ -273,7 +273,7 @@
                 [self.popover close];
             } else {
                 // If popover was not shown we have to manually trigger a notification
-                [self popoverWillClose:nil];
+                [self popoverWillClose:[NSNotification notificationWithName:@"PHLoginSuccess" object:nil]];
             }
         } else {
             [self.window close];
