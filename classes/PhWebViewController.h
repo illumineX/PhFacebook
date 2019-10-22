@@ -12,7 +12,7 @@
 
 @class PhFacebook;
 
-@interface PhWebViewController : NSViewController <NSWindowDelegate, NSFileManagerDelegate, WebEditingDelegate, NSPopoverDelegate>
+@interface PhWebViewController : NSViewController <NSWindowDelegate, NSFileManagerDelegate, WebEditingDelegate>
 {
     IBOutlet NSWindow *window;
     IBOutlet WebView *webView;
