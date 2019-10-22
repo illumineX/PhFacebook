@@ -44,14 +44,6 @@
     [coder encodeObject:self.permissions forKey:@"permissions"];
 }
 
-- (void) dealloc
-{
-    [_authenticationToken release];
-    [_expiry release];
-    [_permissions release];
-    [super dealloc];
-}
-
 #pragma mark Initialization
 
 - (id) initWithToken: (NSString*) token secondsToExpiry: (NSTimeInterval) seconds permissions: (NSString*) perms
