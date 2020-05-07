@@ -69,12 +69,10 @@
     
     [_undoManager release];
     
-    if ([self preferPopover]) {
-        [_popover release];
-//        [window release];
-    } else {
-//        [window release];
-    }
+    [_popover release];
+    _popover = nil;
+    [permissions release];
+    permissions = nil;
     
     [super dealloc];
 }
